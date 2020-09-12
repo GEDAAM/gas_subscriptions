@@ -18,8 +18,8 @@ export function parseRowWithHeaderProps(row, header) {
   return row.reduce((rowObj, cell, i) => {
     const h = header[i]
     if (h && cell) {
-      const value = typeof cell === 'string' ? cell.trim() : cell
-      rowObj[h] = isValidJSON(value) ? JSON.parse(value) : value
+      rowObj[h] =
+        typeof cell === 'string' ? (isValidJSON(cell) ? JSON.parse(cell) : cell.trim()) : cell
     }
     return rowObj
   }, {})
