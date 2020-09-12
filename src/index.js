@@ -1,44 +1,38 @@
-import { getSpreadsheetAsMatrix, parseMatrixAsObject, setDataToCleanSheet } from './utils'
+import {
+  getIndexedMapWithId,
+  getSpreadsheetAsMatrix,
+  parseMatrixAsObject,
+  saveColumnsToIndexedSheet,
+  setDataToCleanSheet
+} from './utils'
 import { getGroups } from './groups'
 import distributeGroups from './distributeGroups'
+import getSortedUsersList from './sortUsers'
 
 function temp() {
   const ss = SpreadsheetApp.getActiveSpreadsheet()
-  const [usersMatrix] = getSpreadsheetAsMatrix('Subs', ss)
+
+  // timestamp	name	email	register	cpf	selectedGroup	multiplier	status
+  const [usersMatrix, usersSheet] = getSpreadsheetAsMatrix('Subs', ss)
+  // id	vacancies	openVacancies	length	selected	leaders	title	specialty	description	weekDay	startsAt	endsAt	lang	preferenceByYear	preferenceByCollege
   const [groupsMatrix, groupsSheet] = getSpreadsheetAsMatrix('Groups', ss)
-  const [[, bonusList]] = getSpreadsheetAsMatrix('Bonus', ss) // register, multiplier
+  // register, multiplier
 
   const [usersObjList] = parseMatrixAsObject(usersMatrix)
-  // grants only unique students
-  usersObjList.reverse()
+  // grants only unique students, in which only the most recent entry will remain
   const usersMap = getIndexedMapWithId(usersObjList, 'register')
-  // bonusList.forEach(([uid, bonus]) => {
-  //   const user = usersMap.get(uid)
-  //   if (user) user.bonus = bonus
-  // })
-
-  const usersSelectedList = []
-  usersMap.forEach(({ selectedGroup, bonus }, uid) => {
-    const selected = selectedGroup ? JSON.parse(selectedGroup) : []
-    const multiplier = 1 + (bonus || 0)
-    usersSelectedList.push([uid, selected, multiplier])
-  })
-  usersSelectedList.sort((ua, ub) => ua[2] - ub[2])
 
   const groups = getGroups(groupsMatrix)
-  const selectionState = distributeGroups(usersSelectedList, groups)
-  console.log(selectionState)
-  const [header] = groupsMatrix
-  setDataToCleanSheet(groupsSheet, groups, header)
+  const sortedUsers = getSortedUsersList(usersMap)
+  const selectionState = distributeGroups(sortedUsers, groups)
+
+  const [groupsHeader] = groupsMatrix
+  const [usersHeader] = usersMatrix
+
+  saveColumnsToIndexedSheet(['status', 'finalGroup'], usersHeader, selectionState, usersSheet)
+  setDataToCleanSheet(groupsSheet, groups, groupsHeader)
+
+  SpreadsheetApp.flush()
 }
 
 global.temp = temp
-
-function getIndexedMapWithId(objList, idProp) {
-  const map = new Map()
-  objList.forEach(obj => {
-    map.set(obj[idProp], obj)
-  })
-
-  return map
-}

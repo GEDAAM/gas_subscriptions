@@ -2,7 +2,7 @@
 export default function distributeGroups(optionsList, groups) {
   const { remainder } = groups
   return optionsList.map(([uid, [opt1Id, opt2Id]]) => {
-    if (!opt1Id) return ['EMPTY']
+    if (!opt1Id) return ['EMPTY', null]
 
     const opt1 = groups[opt1Id]
     if (opt1.hasVacancy) {
@@ -19,7 +19,6 @@ export default function distributeGroups(optionsList, groups) {
     }
 
     remainder.selected.push(uid)
-    remainder.openVacancies++
     return ['REMAINDER', opt1Id]
   })
 }

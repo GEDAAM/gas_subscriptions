@@ -1,13 +1,17 @@
+import { mapMatrixWithHeader, parseRowWithHeaderProps } from './utils'
+
 export class Group {
   constructor({ vacancies, selected, openVacancies, ...rest }) {
     this.vacancies = +vacancies
-    this._openVacancies = openVacancies === 0 ? 0 : +openVacancies || +vacancies
+    this._openVacancies = +openVacancies || +vacancies
     this._length = selected.length
     delete rest['length']
 
     this.selected = new Proxy(selected, {
       set: function (_target, property, value) {
-        if (+property >= this.vacancies) return false
+        if (+property >= this.vacancies) {
+          throw new TypeError('You cannot set more students than there are vacancies')
+        }
 
         if (property === 'length') {
           this._length = value
@@ -34,25 +38,31 @@ export class Group {
   }
 }
 
-export function getGroups(groupsMatrix) {
-  const [header, ...data] = groupsMatrix
+export const Modes = {
+  CLEAN: 'CLEAN',
+  RETAINING: 'RETAINING'
+}
+
+export function getGroups(groupsMatrix, mode = Modes.CLEAN) {
   const groups = {}
 
-  data.forEach(row => {
-    const group = row.reduce((rowObj, col, i) => {
-      const h = header[i].trim().replace('\n', '')
-      if (h && col) rowObj[h] = col.trim ? col.trim() : col
-      return rowObj
-    }, {})
+  mapMatrixWithHeader(groupsMatrix, (row, header) => {
+    const group = parseRowWithHeaderProps(row, header)
+    if (mode === Modes.CLEAN) {
+      group.selected = []
+      delete group.openVacancies
+    }
 
-    if (group.id === 'remainder') return
+    group.id = String(group.id)
     groups[group.id] = new Group(group)
   })
 
-  groups['remainder'] = {
-    selected: [],
-    vacancies: Infinity,
-    openVacancies: 0
+  if (mode === Modes.CLEAN) {
+    groups['remainder'] = new Group({
+      selected: [],
+      vacancies: Infinity
+    })
   }
+
   return groups
 }
