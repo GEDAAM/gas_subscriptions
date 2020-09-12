@@ -1,6 +1,5 @@
 // Will mutate groups' inner objects
 export default function distributeGroups(optionsList, groups) {
-  const { remainder } = groups
   return optionsList.map(([uid, [opt1Id, opt2Id]]) => {
     if (!opt1Id) return ['EMPTY', null]
 
@@ -18,7 +17,7 @@ export default function distributeGroups(optionsList, groups) {
       }
     }
 
-    remainder.selected.push(uid)
+    groups['remainder'].selected.push(uid)
     return ['REMAINDER', opt1Id]
   })
 }
