@@ -8,11 +8,18 @@ export function getSpreadsheetAsMatrix(sheetName, ss) {
   return [data, sheet]
 }
 
+export function isValidJSON(string) {
+  if (!string) return false
+  if (string.includes('{') || string.includes('[') || string.includes('"')) return true
+  return false
+}
+
 export function parseRowWithHeaderProps(row, header) {
   return row.reduce((rowObj, cell, i) => {
     const h = header[i]
     if (h && cell) {
-      rowObj[h] = typeof cell === 'string' ? JSON.parse(cell.trim()) : cell
+      const value = typeof cell === 'string' ? cell.trim() : cell
+      rowObj[h] = isValidJSON(value) ? JSON.parse(value) : value
     }
     return rowObj
   }, {})
