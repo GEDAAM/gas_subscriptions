@@ -13,7 +13,7 @@ function groupsDistributionOrchestrator(mode = Modes.CLEAN) {
 
   // timestamp	name	email	register	cpf	selectedGroup	multiplier	status	finalGroup
   const [usersMatrix, usersSheet] = getSpreadsheetAsMatrix('Subs', ss)
-  // id	vacancies	openVacancies	length	selected	leaders	title	specialty	description	weekDay	startsAt	endsAt	lang	preferenceByYear	preferenceByCollege
+  // id	vacancies	openVacancies	length	selected
   const [groupsMatrix, groupsSheet] = getSpreadsheetAsMatrix('Groups', ss)
 
   const [usersObjList, usersHeader] = parseMatrixAsObject(usersMatrix)
