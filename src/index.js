@@ -1,38 +1,19 @@
-import {
-  getIndexedMapWithId,
-  getSpreadsheetAsMatrix,
-  parseMatrixAsObject
-} from './utils/parseSsData'
-import { getGroups } from './groups'
-import distributeGroups from './distributeGroups'
-import { getSortedUsersList, prepareUsersList, updateUsers } from './users'
-import { saveDataToCleanSheet } from './utils/saveToSheet'
+import { distributeGroupsFromZero, distributeRemainingVacancies } from './distribution'
+import generateGroupsSpreadsheets from './groups_ui'
+import separateFormData from './separator'
 
-function temp() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet()
-
-  // timestamp	name	email	register	cpf	selectedGroup	multiplier	status	finalGroup
-  const [usersMatrix, usersSheet] = getSpreadsheetAsMatrix('Subs', ss)
-  // id	vacancies	openVacancies	length	selected	leaders	title	specialty	description	weekDay	startsAt	endsAt	lang	preferenceByYear	preferenceByCollege
-  const [groupsMatrix, groupsSheet] = getSpreadsheetAsMatrix('Groups', ss)
-  // register, multiplier
-
-  const [usersObjList, usersHeader] = parseMatrixAsObject(usersMatrix)
-  // grants only unique students, in which only the most recent entry will remain
-  const usersMap = getIndexedMapWithId(usersObjList, 'register')
-
-  const groups = getGroups(groupsMatrix)
-  const preparedUsersList = prepareUsersList(usersMap)
-  const sortedUsers = getSortedUsersList(preparedUsersList)
-  const selectionState = distributeGroups(sortedUsers, groups)
-  const updatedUsersList = updateUsers(preparedUsersList, selectionState, ['status', 'finalGroup'])
-
-  console.log(updatedUsersList)
-  const [groupsHeader] = groupsMatrix
-  saveDataToCleanSheet(groupsSheet, groups, groupsHeader)
-  saveDataToCleanSheet(usersSheet, updatedUsersList, usersHeader)
-
-  SpreadsheetApp.flush()
+function onOpen() {
+  SpreadsheetApp.getUi()
+    .createMenu('GEDAAM')
+    .addItem('Separar dados do formulário', 'separateData')
+    .addItem('Distribuir grupos do zero', 'distributeGroupsFromZero')
+    .addItem('Distribuir vagas remanescentes', 'distributeRemainingVacancies')
+    .addItem('Gerar planilhas dos grupos', 'generateSheets')
+    .addToUi()
 }
 
-global.temp = temp
+global.distributeGroupsFromZero = distributeGroupsFromZero
+global.distributeRemainingVacancies = distributeRemainingVacancies
+global.generateSheets = generateGroupsSpreadsheets
+global.separateData = separateFormData
+global.onOpen = onOpen

@@ -26,7 +26,6 @@ module.exports = {
         usePrettierrc: true
       }
     ],
-    'import/prefer-default-export': 'error',
     'no-nested-ternary': 'off',
     'arrow-parens': ['error', 'as-needed'],
     'no-console': 'off'
