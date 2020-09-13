@@ -59,6 +59,7 @@ export function getGroups(groupsMatrix, mode = Modes.CLEAN) {
 
   if (mode === Modes.CLEAN) {
     groups['remainder'] = new Group({
+      id: 'remainder',
       selected: [],
       vacancies: Infinity
     })

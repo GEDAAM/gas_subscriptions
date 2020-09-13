@@ -1,5 +1,5 @@
 export function saveDataToCleanSheet(sheet, dataObj, headers) {
-  // sheet.clear()
+  sheet.clear()
 
   const mappable = 'map' in dataObj ? dataObj : Object.values(dataObj)
   const data = mappable

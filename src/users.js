@@ -31,5 +31,7 @@ export function updateUsers(usersList, newData, newHeaders) {
     newData[i].forEach((datum, j) => {
       user[newHeaders[j]] = datum
     })
+
+    return user
   })
 }
