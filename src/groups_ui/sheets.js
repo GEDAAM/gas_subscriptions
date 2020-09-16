@@ -41,7 +41,9 @@ export function getMembersMatrix(group) {
   )
 }
 
-export function populateGroupSheet(sheetId, membersMatrix) {
-  const ss = SpreadsheetApp.openById(sheetId).getSheetByName(Config.MAIN_SHEET_NAME)
-  ss.getRange(3, 1, membersMatrix.length, membersMatrix[0].length).setValues(membersMatrix)
+export function populateGroupSheet(spreadsheet, membersMatrix) {
+  spreadsheet
+    .getSheetByName(Config.MAIN_SHEET_NAME)
+    .getRange(3, 1, membersMatrix.length, membersMatrix[0].length)
+    .setValues(membersMatrix)
 }

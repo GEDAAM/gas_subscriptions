@@ -38,14 +38,17 @@ export default function generateGroupsSpreadsheets() {
     )
   )
 
-  groupsWithUsers.forEach(group => {
+  groupsWithUsers.map(group => {
     const membersMatrix = getMembersMatrix(group)
     const groupSheet = createGroupSheetFromTemplate(group)
-    populateGroupSheet(groupSheet.getId(), membersMatrix)
+    const id = groupSheet.getId()
+    const ss = SpreadsheetApp.openById(id)
+    populateGroupSheet(ss, membersMatrix)
     // const mergingFields = {
     //   ...mailFieldsReplacer({ ...group.coordinators, link: groupSheet.getUrl(), tutorial: '#' }),
     //   ...group.coordinators
     // }
     // sendEmail(mergingFields)
+    return id
   })
 }
