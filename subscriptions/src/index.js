@@ -1,6 +1,9 @@
 import { distributeGroupsFromZero, distributeRemainingVacancies } from './distribution'
 import generateGroupsSpreadsheets from './groups_ui'
 import separateFormData from './separator'
+import setup from './setup'
+import triggersSetup from './triggers'
+import sendGroupsDataToServer from './updater'
 
 function onOpen() {
   SpreadsheetApp.getUi()
@@ -16,4 +19,9 @@ global.distributeGroupsFromZero = distributeGroupsFromZero
 global.distributeRemainingVacancies = distributeRemainingVacancies
 global.generateSheets = generateGroupsSpreadsheets
 global.separateData = separateFormData
+global.sendGroupsDataToServer = sendGroupsDataToServer
+
+global.setup = setup
+global.triggers = triggersSetup
+
 global.onOpen = onOpen

@@ -5,7 +5,7 @@ export default function sendGroupsDataToServer() {
   // these properties should be secretly set before first execution
   const { FORM_SERVER_KEY, SERVER_URL } = PropertiesService.getDocumentProperties()
   const scriptProperties = PropertiesService.getScriptProperties()
-  let repeatCount = scriptProperties.getProperty('repeatCount')
+  const repeatCount = scriptProperties.getProperty('repeatCount')
 
   const ss = SpreadsheetApp.getActiveSpreadsheet()
   const [groupsMatrix] = getSpreadsheetAsMatrix('Turmas', ss)
