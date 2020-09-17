@@ -1,17 +1,10 @@
-/**
- * @file webpack.config.js
- * @author Amit Agarwal
- * @email amit@labnol.org
- *
- * Google Apps Script Starter Kit
- * https://github.com/labnol/apps-script-starter
- */
-
 const path = require('path')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const GasPlugin = require('gas-webpack-plugin')
 const TerserPlugin = require('terser-webpack-plugin')
+
+const ROOT = path.dirname(__dirname)
 
 const destination = path.resolve(__dirname, 'dist')
 const isProduction = process.env.NODE_ENV === 'production'

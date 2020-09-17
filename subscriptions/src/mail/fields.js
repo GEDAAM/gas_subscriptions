@@ -1,4 +1,4 @@
-import { fieldReplacer } from '../utils/general'
+import { fieldReplacer } from '../../../lib/general'
 
 export function getMailFieldsReplacer(mailFields) {
   return replacer =>

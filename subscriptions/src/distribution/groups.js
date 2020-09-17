@@ -1,4 +1,4 @@
-import { mapMatrixWithHeader, parseRowWithHeaderProps } from '../utils/parseSsData'
+import { mapMatrixWithHeader, parseRowWithHeaderProps } from '../../../lib/parseSsData'
 
 export class Group {
   constructor({ vacancies, selected, openVacancies, ...rest }) {

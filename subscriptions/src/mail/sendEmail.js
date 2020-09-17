@@ -1,5 +1,5 @@
 import { Config } from '../groups_ui/config'
-import { fieldReplacer } from '../utils/general'
+import { fieldReplacer } from '../../../lib/general'
 
 export default function sendEmail(mergingFields, attachment, replyToSuffix = '') {
   if (MailApp.getRemainingDailyQuota() < 1) throw new Error('A cota de emails diária se esgotou\n')

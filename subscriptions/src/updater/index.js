@@ -1,5 +1,5 @@
-import { fetch } from '../utils/fetch'
-import { getSpreadsheetAsMatrix, parseMatrixAsObject } from '../utils/parseSsData'
+import { fetch } from '../../../lib/fetch'
+import { getSpreadsheetAsMatrix, parseMatrixAsObject } from '../../../lib/parseSsData'
 
 export default function sendGroupsDataToServer() {
   // these properties should be secretly set before first execution

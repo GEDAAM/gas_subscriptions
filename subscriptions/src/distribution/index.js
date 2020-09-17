@@ -2,11 +2,11 @@ import {
   getIndexedMapWithId,
   getSpreadsheetAsMatrix,
   parseMatrixAsObject
-} from '../utils/parseSsData'
+} from '../../../lib/parseSsData'
 import { getGroups, Modes } from './groups'
 import distributeGroups from './distributeGroups'
 import { getSortedUsersList, prepareUsersList, updateUsers } from './users'
-import { saveDataToCleanSheet } from '../utils/saveToSheet'
+import { saveDataToCleanSheet } from '../../../lib/saveToSheet'
 
 function groupsDistributionOrchestrator(mode = Modes.CLEAN) {
   const ss = SpreadsheetApp.getActiveSpreadsheet()

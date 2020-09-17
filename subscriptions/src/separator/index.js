@@ -1,4 +1,4 @@
-import { saveDataToCleanSheet } from '../utils/saveToSheet'
+import { saveDataToCleanSheet } from '../../../lib/saveToSheet'
 export default function separateFormData() {
   const ss = SpreadsheetApp.getActiveSpreadsheet()
   const formSheet = ss.getSheetByName('Form')

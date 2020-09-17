@@ -4,7 +4,7 @@ import {
   getIndexedMapWithId,
   getSpreadsheetAsMatrix,
   parseMatrixAsObject
-} from '../utils/parseSsData'
+} from '../../../lib/parseSsData'
 import { createGroupSheetFromTemplate, getMembersMatrix, populateGroupSheet } from './sheets'
 
 export default function generateGroupsSpreadsheets() {
