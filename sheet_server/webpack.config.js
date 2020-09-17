@@ -72,11 +72,6 @@ module.exports = {
     new CopyWebpackPlugin({
       patterns: [
         {
-          from: getSrcPath('**/*.html'),
-          flatten: true,
-          to: destination
-        },
-        {
           from: getSrcPath('../appsscript.json'),
           to: destination
         }

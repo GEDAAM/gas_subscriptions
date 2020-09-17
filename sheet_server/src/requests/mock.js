@@ -1,12 +1,6 @@
-/**
- * @OnlyCurrentDoc
- */
-function setup() {
-  const doc = SpreadsheetApp.getActiveSpreadsheet()
-  SCRIPT_PROP.setProperty('key', doc.getId())
-}
+import postWithFormSheet from './post'
 
-function mockRequest() {
+export default function mockRequest() {
   const testData = {
     test1: 'data1',
     test2: 5,
@@ -24,7 +18,7 @@ function mockRequest() {
   }
 
   const doc = SpreadsheetApp.getActiveSpreadsheet()
-  const sheet = doc.getSheetByName(SHEET_NAME)
+  const sheet = doc.getSheetByName('Form')
 
-  postWithSheet(event, sheet)
+  postWithFormSheet(event, sheet)
 }
