@@ -8,7 +8,7 @@ import mockRequest from './requests/mock'
  */
 
 function doGet(e) {
-  return handleRequest(e, 'Turmas', getWithGroupsSheet)
+  return handleRequest(e, 'Public', getWithGroupsSheet)
 }
 
 function doPost(e) {
