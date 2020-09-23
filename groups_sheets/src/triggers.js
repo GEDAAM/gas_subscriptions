@@ -1,14 +1,15 @@
-export function addGroupSheetTriggers(spreadsheet) {
+import { mapTriggers } from '../../lib/triggers'
+
+export default function addGroupSheetTriggers(spreadsheet) {
   const triggers = [
     {
-      name: 'fn', // should add sidebar
+      name: 'myOnOpen', // show sidebar and add menu
       callback: builder => builder.forSpreadsheet(spreadsheet).onOpen()
-    },
-    {
-      name: 'fn', // should update reserved sheet
-      callback: builder => builder.forSpreadsheet(spreadsheet).onEdit()
     }
+    // ,{
+    //   name: 'myOnEdit', // update reserved sheet
+    //   callback: builder => builder.forSpreadsheet(spreadsheet).onEdit()
+    // }
   ]
-  deleteTriggers(spreadsheet)
   mapTriggers(triggers)
 }

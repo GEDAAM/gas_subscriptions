@@ -1,4 +1,4 @@
-import { deleteTriggers, mapTriggers } from '../../lib/triggers/index'
+import { deleteTriggers, mapTriggers } from '../../lib/triggers'
 
 const TRIGGERABLE_FUNCTIONS = [
   // {
