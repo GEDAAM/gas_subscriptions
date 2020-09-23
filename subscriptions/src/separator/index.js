@@ -1,4 +1,4 @@
-import { saveDataToCleanSheet } from '../../../lib/saveToSheet'
+import { saveDataToSheet } from '../../../lib/saveToSheet'
 export default function separateFormData() {
   const ss = SpreadsheetApp.getActiveSpreadsheet()
   const formSheet = ss.getSheetByName('Form')
@@ -23,8 +23,8 @@ export default function separateFormData() {
     .map(row => subsHeaders.map(header => row[header]))
     .filter(r => r[3])
 
-  saveDataToCleanSheet(researchSheet, researchData, researchHeaders)
-  saveDataToCleanSheet(subsSheet, subsData, subsHeaders)
+  saveDataToSheet(researchSheet, researchData, researchHeaders)
+  saveDataToSheet(subsSheet, subsData, subsHeaders)
 
   SpreadsheetApp.flush()
 }

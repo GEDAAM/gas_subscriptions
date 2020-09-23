@@ -1,28 +1,28 @@
-import MailField, { getMailFieldsReplacer } from '../mail/fields'
-import sendEmail from '../mail/sendEmail'
 import {
   getIndexedMapWithId,
   getSpreadsheetAsMatrix,
   parseMatrixAsObject
 } from '../../../lib/parseSsData'
-import { createGroupSheetFromTemplate, getMembersMatrix, populateGroupSheet } from './sheets'
+import { getGroupSheetId, getSortedMembers } from './sheets_gen'
+import { Config } from './config'
+import { saveDataToSheet } from '../../../lib/saveToSheet'
 
 export default function generateGroupsSpreadsheets() {
   const ss = SpreadsheetApp.getActiveSpreadsheet()
 
   // timestamp	formId	id	name	email	register	sex	cpf	phoneNumber	course	college	otherCollege	isRegular	semester	isNewbie	semestersInvolved	medium	topicsOfInterest	selectedGroup
-  const [usersMatrix, usersSheet] = getSpreadsheetAsMatrix('Students', ss)
+  const [usersMatrix] = getSpreadsheetAsMatrix('Students', ss)
+  const [usersObjList] = parseMatrixAsObject(usersMatrix)
+  const usersMap = getIndexedMapWithId(usersObjList, 'register')
+
+  // register	cpf	email	name	social_name	sex	phoneNumber	course	semester	college
+  const [coordsMatrix] = getSpreadsheetAsMatrix('Coord', ss)
+  const [coordsObjList] = parseMatrixAsObject(coordsMatrix)
+  const coordsMap = getIndexedMapWithId(coordsObjList, 'register')
+
   // id	vacancies	openVacancies	length	selected	leaders	title	specialty	description	weekDay	startsAt	endsAt	lang	preferenceByYear	preferenceByCollege
   const [groupsMatrix, groupsSheet] = getSpreadsheetAsMatrix('Turmas', ss)
-  // register	cpf	email	name	social_name	sex	phoneNumber	course	semester	college
-  const [coordsMatrix, coordsSheet] = getSpreadsheetAsMatrix('Coord', ss)
-
-  const [usersObjList, usersHeader] = parseMatrixAsObject(usersMatrix)
   const [groupsObjList, groupsHeader] = parseMatrixAsObject(groupsMatrix)
-  const [coordsObjList, coordsHeader] = parseMatrixAsObject(coordsMatrix)
-
-  const usersMap = getIndexedMapWithId(usersObjList, 'register')
-  const coordsMap = getIndexedMapWithId(coordsObjList, 'register')
 
   const groupsWithUsers = groupsObjList.map(({ selected, registers, ...groupObj }) => ({
     ...groupObj,
@@ -30,25 +30,23 @@ export default function generateGroupsSpreadsheets() {
     coordinators: registers.map(cid => coordsMap.get(cid))
   }))
 
-  const mailFieldsReplacer = getMailFieldsReplacer(
-    new MailField(
-      '{{name}}, sua planilha de presenças',
-      'Planilha de Presenças do Coordenador GEDAAM',
-      'Caro coordenador, <a href="{{link}}" target="_blank">neste link</a> você poderá acessar a planilha de controle de membros. Para aprender como usá-la veja <a href="{{tutorial}}" target="_blank">este tutorial</a>'
-    )
-  )
+  // TODO: error handling
+  groupsWithUsers.map((group, i) => {
+    const id = getGroupSheetId(group, 'sheet_id')
+    groupsObjList[i].sheet_id = id // mutates group object with the id property
+    const members = getSortedMembers(group)
 
-  groupsWithUsers.map(group => {
-    const membersMatrix = getMembersMatrix(group)
-    const groupSheet = createGroupSheetFromTemplate(group)
-    const id = groupSheet.getId()
     const ss = SpreadsheetApp.openById(id)
-    populateGroupSheet(ss, membersMatrix)
-    // const mergingFields = {
-    //   ...mailFieldsReplacer({ ...group.coordinators, link: groupSheet.getUrl(), tutorial: '#' }),
-    //   ...group.coordinators
-    // }
-    // sendEmail(mergingFields)
+    const [[header], sheet] = getSpreadsheetAsMatrix(Config.RESERVED_SHEET_NAME, ss)
+    saveDataToSheet(sheet, members, header, false)
+    sheet.hideSheet()
+
     return id
   })
+
+  // save sheet ids to database
+  const gHeader = !groupsHeader.includes('sheet_id')
+    ? groupsHeader.filter(h => h).push('sheet_id')
+    : [...groupsHeader]
+  saveDataToSheet(groupsSheet, groupsObjList, gHeader)
 }

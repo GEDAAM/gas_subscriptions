@@ -6,7 +6,7 @@ import {
 import { getGroups, Modes } from './groups'
 import distributeGroups from './distributeGroups'
 import { getSortedUsersList, prepareUsersList, updateUsers } from './users'
-import { saveDataToCleanSheet } from '../../../lib/saveToSheet'
+import { saveDataToSheet } from '../../../lib/saveToSheet'
 
 function groupsDistributionOrchestrator(mode = Modes.CLEAN) {
   const ss = SpreadsheetApp.getActiveSpreadsheet()
@@ -30,8 +30,8 @@ function groupsDistributionOrchestrator(mode = Modes.CLEAN) {
   const selectionState = distributeGroups(sortedUsers, groups)
   const updatedUsersList = updateUsers(preparedUsersList, selectionState, ['status', 'finalGroup'])
 
-  saveDataToCleanSheet(groupsSheet, groups, groupsHeader)
-  saveDataToCleanSheet(usersSheet, updatedUsersList, usersHeader)
+  saveDataToSheet(groupsSheet, groups, groupsHeader)
+  saveDataToSheet(usersSheet, updatedUsersList, usersHeader)
 
   SpreadsheetApp.flush()
 }

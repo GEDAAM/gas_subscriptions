@@ -3,7 +3,7 @@ import generateGroupsSpreadsheets from './groups_ui'
 import separateFormData from './separator'
 import setup from './setup'
 import triggersSetup from './triggers'
-import sendGroupsDataToServer from './updater'
+import sendGroupsDataToServer from './update_group_opt'
 
 function onOpen() {
   SpreadsheetApp.getUi()

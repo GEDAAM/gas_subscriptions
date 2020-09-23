@@ -19,31 +19,37 @@ export function trashPreviousFiles(fileIterator) {
   }
 }
 
-export function createGroupSheetFromTemplate(group) {
+export function getGroupSheetFile(group, recycle = true) {
   const destination = DriveApp.getFolderById(Config.FOLDER_ID)
   const fileName = getGroupName(group)
   const previousFiles = destination.getFilesByName(fileName)
-  trashPreviousFiles(previousFiles)
 
-  const file = DriveApp.getFileById(Config.TEMPLATE_ID)
-    .makeCopy(fileName, destination)
-    .setShareableByEditors(false)
+  let file
+  if (recycle && previousFiles.hasNext()) {
+    file = previousFiles.next()
+  } else {
+    trashPreviousFiles(previousFiles)
+    file = DriveApp.getFileById(Config.TEMPLATE_ID).makeCopy(fileName, destination)
+  }
 
   const editors = !Config.TEST ? group.coordinators.map(c => c.email) : ['rafawendel2010@gmail.com']
   file.addEditors(editors)
+  file.setShareableByEditors(false)
 
   return file
 }
 
-export function getMembersMatrix(group) {
-  return group.members.map(member =>
-    ['name', 'phoneNumber', 'semester', 'college', 'email'].map(prop => member[prop])
-  )
+export function getGroupSheetId(group, idProp = 'sheet_id') {
+  let id
+  if (idProp in group && Config.RECYCLE_GROUP_SHEETS) {
+    id = group.sheet_id
+  } else {
+    const groupSpreadsheetFile = getGroupSheetFile(group, Config.RECYCLE_GROUP_SHEETS)
+    id = groupSpreadsheetFile.getId()
+  }
+  return id
 }
 
-export function populateGroupSheet(spreadsheet, membersMatrix) {
-  spreadsheet
-    .getSheetByName(Config.MAIN_SHEET_NAME)
-    .getRange(3, 1, membersMatrix.length, membersMatrix[0].length)
-    .setValues(membersMatrix)
+export function getSortedMembers(group) {
+  return group.members.sort(({ name: a }, { name: b }) => a.localeCompare(b))
 }
