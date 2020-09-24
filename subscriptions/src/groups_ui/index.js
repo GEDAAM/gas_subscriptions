@@ -1,6 +1,6 @@
 import {
   getIndexedMapWithId,
-  getSpreadsheetAsMatrix,
+  getSheetAsMatrix,
   parseMatrixAsObject
 } from '../../../lib/parseSsData'
 import { getGroupSheetId, getSortedMembers } from './sheets_gen'
@@ -11,17 +11,17 @@ export default function generateGroupsSpreadsheets() {
   const ss = SpreadsheetApp.getActiveSpreadsheet()
 
   // timestamp	formId	id	name	email	register	sex	cpf	phoneNumber	course	college	otherCollege	isRegular	semester	isNewbie	semestersInvolved	medium	topicsOfInterest	selectedGroup
-  const [usersMatrix] = getSpreadsheetAsMatrix('Students', ss)
+  const [usersMatrix] = getSheetAsMatrix('Students', ss)
   const [usersObjList, usersHeader] = parseMatrixAsObject(usersMatrix)
   const usersMap = getIndexedMapWithId(usersObjList, 'register')
 
   // register	cpf	email	name	social_name	sex	phoneNumber	course	semester	college
-  const [coordsMatrix] = getSpreadsheetAsMatrix('Coord', ss)
+  const [coordsMatrix] = getSheetAsMatrix('Coord', ss)
   const [coordsObjList] = parseMatrixAsObject(coordsMatrix)
   const coordsMap = getIndexedMapWithId(coordsObjList, 'register')
 
   // id	vacancies	openVacancies	length	selected	leaders	title	specialty	description	weekDay	startsAt	endsAt	lang	preferenceByYear	preferenceByCollege
-  const [groupsMatrix, groupsSheet] = getSpreadsheetAsMatrix('Turmas', ss)
+  const [groupsMatrix, groupsSheet] = getSheetAsMatrix('Turmas', ss)
   const [groupsObjList, groupsHeader] = parseMatrixAsObject(groupsMatrix)
 
   const groupsWithUsers = groupsObjList.map(({ selected, registers, ...groupObj }) => ({
@@ -37,7 +37,7 @@ export default function generateGroupsSpreadsheets() {
     const members = getSortedMembers(group)
 
     const ss = SpreadsheetApp.openById(id)
-    const [[header], sheet] = getSpreadsheetAsMatrix(Config.RESERVED_SHEET_NAME, ss)
+    const [[header], sheet] = getSheetAsMatrix(Config.RESERVED_SHEET_NAME, ss)
     const currentHeader = header.filter(h => usersHeader.includes(h))
     saveDataToSheet(sheet, members, currentHeader, false)
     // sheet.getRange(1, currentHeader.length + 1).setFormula(`{${Config.MAIN_SHEET_NAME}!G2:Z}`)

@@ -1,5 +1,5 @@
 import { fetch } from '../../../lib/fetch'
-import { getSpreadsheetAsMatrix, parseMatrixAsObject } from '../../../lib/parseSsData'
+import { getSheetAsMatrix, parseMatrixAsObject } from '../../../lib/parseSsData'
 
 export default function sendGroupsDataToServer() {
   // these properties should be secretly set before first execution
@@ -8,7 +8,7 @@ export default function sendGroupsDataToServer() {
   const repeatCount = scriptProperties.getProperty('repeatCount')
 
   const ss = SpreadsheetApp.getActiveSpreadsheet()
-  const [groupsMatrix] = getSpreadsheetAsMatrix('Turmas', ss)
+  const [groupsMatrix] = getSheetAsMatrix('Turmas', ss)
   const [groupsObjList] = parseMatrixAsObject(groupsMatrix)
 
   fetch(SERVER_URL, {

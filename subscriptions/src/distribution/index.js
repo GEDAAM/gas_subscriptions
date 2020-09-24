@@ -1,6 +1,6 @@
 import {
   getIndexedMapWithId,
-  getSpreadsheetAsMatrix,
+  getSheetAsMatrix,
   parseMatrixAsObject
 } from '../../../lib/parseSsData'
 import { getGroups, Modes } from './groups'
@@ -12,9 +12,9 @@ function groupsDistributionOrchestrator(mode = Modes.CLEAN) {
   const ss = SpreadsheetApp.getActiveSpreadsheet()
 
   // timestamp	name	email	register	cpf	selectedGroup	multiplier	status	finalGroup
-  const [usersMatrix, usersSheet] = getSpreadsheetAsMatrix('Subs', ss)
+  const [usersMatrix, usersSheet] = getSheetAsMatrix('Subs', ss)
   // id	vacancies	openVacancies	length	selected
-  const [groupsMatrix, groupsSheet] = getSpreadsheetAsMatrix('Groups', ss)
+  const [groupsMatrix, groupsSheet] = getSheetAsMatrix('Groups', ss)
 
   const [usersObjList, usersHeader] = parseMatrixAsObject(usersMatrix)
   // grants only unique students, in which only the most recent entry will remain
