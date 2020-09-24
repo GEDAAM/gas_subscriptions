@@ -12,7 +12,7 @@ export default function generateGroupsSpreadsheets() {
 
   // timestamp	formId	id	name	email	register	sex	cpf	phoneNumber	course	college	otherCollege	isRegular	semester	isNewbie	semestersInvolved	medium	topicsOfInterest	selectedGroup
   const [usersMatrix] = getSpreadsheetAsMatrix('Students', ss)
-  const [usersObjList] = parseMatrixAsObject(usersMatrix)
+  const [usersObjList, usersHeader] = parseMatrixAsObject(usersMatrix)
   const usersMap = getIndexedMapWithId(usersObjList, 'register')
 
   // register	cpf	email	name	social_name	sex	phoneNumber	course	semester	college
@@ -38,7 +38,9 @@ export default function generateGroupsSpreadsheets() {
 
     const ss = SpreadsheetApp.openById(id)
     const [[header], sheet] = getSpreadsheetAsMatrix(Config.RESERVED_SHEET_NAME, ss)
-    saveDataToSheet(sheet, members, header, false)
+    const currentHeader = header.filter(h => usersHeader.includes(h))
+    saveDataToSheet(sheet, members, currentHeader, false)
+    // sheet.getRange(1, currentHeader.length + 1).setFormula(`{${Config.MAIN_SHEET_NAME}!G2:Z}`)
     sheet.hideSheet()
 
     return id
