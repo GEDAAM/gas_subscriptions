@@ -1,4 +1,4 @@
-import showSubscriptionSidebar from './sidebar'
+import showSubscriptionSidebar from '../sidebar'
 
 export function generateMenu() {
   SpreadsheetApp.getUi()

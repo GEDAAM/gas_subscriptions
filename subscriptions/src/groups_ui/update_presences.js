@@ -1,4 +1,4 @@
-import { getSpreadsheetAsMatrix, parseMatrixAsObject } from '../../../lib/parseSsData'
+import { getSheetAsMatrix, parseMatrixAsObject } from '../../../lib/parseSsData'
 import { saveDataToSheet } from '../../../lib/saveToSheet'
 import { Config } from './config'
 
@@ -6,17 +6,17 @@ export default function updateUserPresences() {
   const masterSpreadsheet = SpreadsheetApp.getActiveSpreadsheet()
 
   // timestamp	formId	id	name	email	register	sex	cpf	phoneNumber	course	college	otherCollege	isRegular	semester	isNewbie	semestersInvolved	medium	topicsOfInterest	selectedGroup
-  const [usersMatrix, usersSheet] = getSpreadsheetAsMatrix('Students', masterSpreadsheet)
+  const [usersMatrix, usersSheet] = getSheetAsMatrix('Students', masterSpreadsheet)
   const [usersObjList, usersHeader] = parseMatrixAsObject(usersMatrix)
 
   // id	vacancies	openVacancies	length	selected	leaders	title	specialty	description	weekDay	startsAt	endsAt	lang	preferenceByYear	preferenceByCollege
-  const [groupsMatrix] = getSpreadsheetAsMatrix('Turmas', masterSpreadsheet)
+  const [groupsMatrix] = getSheetAsMatrix('Turmas', masterSpreadsheet)
   const [groupsObjList] = parseMatrixAsObject(groupsMatrix)
 
   const userPresences = new Map()
   groupsObjList.forEach(({ id: groupId, sheet_id }) => {
     const ss = SpreadsheetApp.openById(sheet_id)
-    const [[header, ...data]] = getSpreadsheetAsMatrix(Config.RESERVED_SHEET_NAME, ss)
+    const [[header, ...data]] = getSheetAsMatrix(Config.RESERVED_SHEET_NAME, ss)
     const presenceHeader = header.filter(h => !usersHeader.includes(h))
     const presenceIndices = presenceHeader.map(h => header.indexOf(h))
     const idIndex = header.indexOf('register')

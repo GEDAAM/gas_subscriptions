@@ -1,5 +1,5 @@
 export const Config = {
-  TEST: true,
+  TEST: false,
   RECYCLE_GROUP_SHEETS: true,
   TEMPLATE_ID: '1mtVZ6gEfgoiKYB-QGpRUaFvSUBZEJf19u17Emsgc0yc',
   RESERVED_SHEET_NAME: 'Internal',
