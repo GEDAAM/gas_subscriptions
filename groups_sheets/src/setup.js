@@ -13,7 +13,7 @@ export default function setupGroupUi() {
   deleteTriggers()
   groupsObjList.forEach(({ sheet_id }) => {
     const ss = SpreadsheetApp.openById(sheet_id)
-    const [[header], sheet] = getSpreadsheetAsMatrix(Config.RESERVED_SHEET_NAME, ss)
+    const [, sheet] = getSpreadsheetAsMatrix(Config.RESERVED_SHEET_NAME, ss)
     sheet.hideSheet()
     addGroupSheetTriggers(ss)
   })
