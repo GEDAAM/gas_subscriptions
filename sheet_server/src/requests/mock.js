@@ -1,10 +1,12 @@
-import postWithFormSheet from './post'
+import { postWithSpreadsheet } from '.'
 
 export default function mockRequest() {
   const testData = {
-    test1: 'data1',
-    test2: 5,
-    test3: {
+    operation: 'submit',
+    formId: 'lol',
+    name: 'data1',
+    email: 5,
+    register: {
       'i am groot': { prop: 'i am nested' }
     }
   }
@@ -17,8 +19,7 @@ export default function mockRequest() {
     }
   }
 
-  const doc = SpreadsheetApp.getActiveSpreadsheet()
-  const sheet = doc.getSheetByName('Form')
+  const ss = SpreadsheetApp.getActiveSpreadsheet()
 
-  postWithFormSheet(event, sheet)
+  postWithSpreadsheet(event, ss)
 }

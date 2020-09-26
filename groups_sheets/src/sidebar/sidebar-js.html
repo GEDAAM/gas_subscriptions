@@ -1,5 +1,6 @@
 <script>
-  let membersMapByNameReg = new Map()
+  let members
+
   document.addEventListener('DOMContentLoaded', () => {
     const [autocomplete] = M.Autocomplete.init(document.querySelectorAll('.autocomplete'), {
       data: {}
@@ -15,27 +16,25 @@
         console.error(err)
       })
       .withSuccessHandler(users => {
-        autocomplete.updateData(users.reduce((options, user) => {
-          if (user.name) {
-            const namereg = `${user.name} | ${user.register}`
-            membersMapByNameReg.set(namereg, user)
-            options[namereg] = null
-          }
-          return options
-        }, {}))
+        members = users
+        autocomplete.updateData(users)
       })
-      .getAllMembers()
+      .getMembersNameReg()
   })
 
-  const getSuccessModalMessage = res => `
+  const getSuccessModalMessage = message => `
     <div class="container">
       <div class="row center-align">
         <h5>Operação realizada</h5>
       </div>
       <div class="row center-align">
-        <p>${res.message}</p>
+        <p>${message}</p>
       <div class="row center-align">
-        <button class="btn waves-effect waves-light" type="button" onclick="google.script.host.close()">
+        <button
+          class="btn waves-effect waves-light"
+          type="button"
+          onclick="google.script.host.close()"
+        >
           OK
         </button>
       </div>
@@ -49,7 +48,7 @@
         alert(err.message)
       })
       .withSuccessHandler(res => {
-        showModal(getSuccessModalMessage(res))
+        showModal(getSuccessModalMessage(res.message))
       })
       .addMember,
     'Remover membro': google.script.run
@@ -58,7 +57,7 @@
         alert(err.message)
       })
       .withSuccessHandler(res => {
-        showModal(getSuccessModalMessage(res))
+        showModal(getSuccessModalMessage(res.message))
       })
       .removeMember
   }
@@ -67,17 +66,15 @@
     e.preventDefault()
     e.submitter.disabled = true
     try {
-      const [name, operation] = [...e.target.querySelectorAll('input')].map(i => i.value)
+      const [namereg, operation] = [...e.target.querySelectorAll('input')].map(i => i.value)
       if (!(operation in operations)) throw new Error('Selecione uma operação válida')
-      if (!name || !membersMapByNameReg.has(name)) throw new Error('Insira um membro válido')
-      
+      if (!namereg || !(namereg in members)) throw new Error('Insira um membro válido')
       showModal(`
         <div class="row center-align">
           <h5>Aguarde...</h5>
         </div>
       `)
-      const member = membersMapByNameReg.get(name)
-      operations[operation](member)
+      operations[operation](namereg)
     } catch (err) {
       console.error(err)
       alert(err.message)

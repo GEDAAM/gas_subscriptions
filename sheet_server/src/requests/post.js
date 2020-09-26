@@ -1,3 +1,5 @@
+import { addMember, removeMember } from './memberCRUD'
+
 function mapRow(header, indexedData) {
   return header.map(h => {
     if (h === 'timestamp') return new Date()
@@ -16,17 +18,19 @@ function getHeader(sheet) {
   return header
 }
 
-export default function postWithFormSheet(event, sheet) {
-  const { postData } = event
-  if (!postData.type.includes('json')) throw new Error('Invalid data type')
-  if (postData.length <= 0) throw new Error('Empty payload')
-  const payload = JSON.parse(postData.contents)
-
+function registerFormSubmission(ss, data) {
+  const sheet = ss.getSheetByName('Form')
   const header = getHeader(sheet)
-  const newHeader = [...header, ...Object.keys(payload).filter(k => !header.includes(k))]
+  const newHeader = [...header, ...Object.keys(data).filter(k => !header.includes(k))]
   setHeader(newHeader, sheet)
-  const newRow = mapRow(newHeader, payload)
+  const newRow = mapRow(newHeader, data)
   sheet.appendRow(newRow)
 
-  return {}
+  return newRow
+}
+
+export const PostOperations = {
+  submit: registerFormSubmission,
+  add_member: addMember,
+  remove_member: removeMember
 }

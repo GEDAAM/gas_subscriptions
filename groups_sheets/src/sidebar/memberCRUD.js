@@ -1,109 +1,64 @@
-import { getSheetAsMatrix, parseMatrixAsObject } from '../../../lib/parseSsData'
-import { saveDataToSheet } from '../../../lib/saveToSheet'
-import { Config } from '../config'
-import { showModal } from './modals'
+const { DB_URL } = PropertiesService.getScriptProperties().getProperties()
 
-export function getAllMembers() {
-  const masterSpreadsheet = SpreadsheetApp.openById(Config.MASTER_SHEET_ID)
-  const [usersMatrix] = getSheetAsMatrix('Students', masterSpreadsheet)
-  const [usersObjList] = parseMatrixAsObject(usersMatrix)
-
-  return usersObjList
+function getRegisterFromNamereg(namereg) {
+  return namereg.split('| ')[1]
 }
 
-export function getCurrentMembers() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet()
-  const [usersMatrix] = getSheetAsMatrix(Config.RESERVED_SHEET_NAME, ss)
-  const [usersObjList] = parseMatrixAsObject(usersMatrix)
-
-  return usersObjList
-}
-
-export function addMember(member) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet()
-  const masterSpreadsheet = SpreadsheetApp.openById(Config.MASTER_SHEET_ID)
-  const [sheetId] = SpreadsheetApp.getActiveSpreadsheet().getName().split(' ')
-
-  const [usersMatrix, usersSheet] = getSheetAsMatrix('Students', masterSpreadsheet)
-  const [usersObjList, usersHeader] = parseMatrixAsObject(usersMatrix)
-  const newUsersObjList = usersObjList.map(user => {
-    if (user.register === member.register) {
-      if (!(user.status === 'REMOVED' || user.status === 'REMAINDER')) {
-        throw new Error(
-          'Você não pode incluir um membro de outro grupo, peça que o coordenador desse grupo remova-o antes.'
-        )
-      }
-      user.status = 'MOVED'
-      user.finalGroup = sheetId
-    }
-    return user
+export function getMembersNameReg() {
+  const response = UrlFetchApp.fetch(`${DB_URL}?operation=nameregs`, {
+    method: 'GET'
   })
 
-  const [membersMatrix, currentSheet] = getSheetAsMatrix(Config.RESERVED_SHEET_NAME, ss)
-  const [currentMembers, currentHeader] = parseMatrixAsObject(membersMatrix)
-  const newCurrentMembers = [...currentMembers, member]
+  const { message, nameregs, error } = JSON.parse(response.getContentText())
+  if (message !== 'success') throw new Error(error)
 
-  const [groupsMatrix, groupsSheet] = getSheetAsMatrix('Turmas', masterSpreadsheet)
-  const [groupsObjList, groupsHeader] = parseMatrixAsObject(groupsMatrix)
-  const newGroupsObjList = groupsObjList.map(group =>
-    String(group.id) === sheetId
-      ? { ...group, selected: [...group.selected, member.register] }
-      : group
-  )
+  return nameregs
+}
 
-  const newCurrentHeader = currentHeader.filter(h => isNaN(new Date(h)))
+export function addMember(namereg) {
+  const currentSheetId = SpreadsheetApp.getActiveSpreadsheet().getId()
+  const uid = getRegisterFromNamereg(namereg)
 
-  saveDataToSheet(currentSheet, newCurrentMembers, newCurrentHeader, false)
-  saveDataToSheet(usersSheet, newUsersObjList, usersHeader, false)
-  saveDataToSheet(groupsSheet, newGroupsObjList, groupsHeader, false)
+  const response = UrlFetchApp.fetch(DB_URL, {
+    method: 'POST',
+    contentType: 'application/json',
+    payload: JSON.stringify({
+      operation: 'add_member',
+      currentSheetId,
+      uid
+    })
+  })
+
+  const { message, member, error } = JSON.parse(response.getContentText())
+  console.log(JSON.parse(response.getContentText()), response)
+  if (message !== 'success') throw new Error(error)
+  console.log(member)
 
   return {
     message: 'Membro incluído com sucesso.'
   }
 }
 
-export function removeMember(member) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet()
-  const masterSpreadsheet = SpreadsheetApp.openById(Config.MASTER_SHEET_ID)
+export function removeMember(namereg) {
+  const currentSheetId = SpreadsheetApp.getActiveSpreadsheet().getId()
+  const uid = getRegisterFromNamereg(namereg)
 
-  const [membersMatrix, currentSheet] = getSheetAsMatrix(Config.RESERVED_SHEET_NAME, ss)
-  const [currentMembers, currentHeader] = parseMatrixAsObject(membersMatrix)
-  const newCurrentMembers = currentMembers.filter(({ register }) => register !== member.register)
+  const response = UrlFetchApp.fetch(DB_URL, {
+    method: 'POST',
+    contentType: 'application/json',
+    payload: JSON.stringify({
+      operation: 'remove_member',
+      currentSheetId,
+      uid
+    })
+  })
 
-  if (newCurrentMembers.length === currentMembers.length) {
-    throw new Error('Você não pode remover um membro de outro grupo')
-  }
-  newCurrentMembers.push(currentHeader.map(() => null)) // will clear the last row
-
-  const [usersMatrix, usersSheet] = getSheetAsMatrix('Students', masterSpreadsheet)
-  const [usersObjList, usersHeader] = parseMatrixAsObject(usersMatrix)
-  const newUsersObjList = usersObjList.map(user =>
-    user.register === member.register ? { ...user, status: 'REMOVED' } : user
-  )
-
-  const [groupsMatrix, groupsSheet] = getSheetAsMatrix('Turmas', masterSpreadsheet)
-  const [groupsObjList, groupsHeader] = parseMatrixAsObject(groupsMatrix)
-  const newGroupsObjList = groupsObjList.map(group =>
-    group.id === member.finalGroup
-      ? { ...group, selected: group.selected.filter(uid => uid !== member.register) }
-      : group
-  )
-
-  const [uiMatrix, mainSheet] = getSheetAsMatrix(Config.MAIN_SHEET_NAME, ss)
-  mainSheet.deleteRow(uiMatrix.findIndex(([name]) => name === member.name) + 1)
-  const newCurrentHeader = currentHeader.filter(h => isNaN(new Date(h)))
-
-  saveDataToSheet(currentSheet, newCurrentMembers, newCurrentHeader, false)
-  saveDataToSheet(usersSheet, newUsersObjList, usersHeader, false)
-  saveDataToSheet(groupsSheet, newGroupsObjList, groupsHeader, false)
+  const { message, member, error } = JSON.parse(response.getContentText())
+  console.log(JSON.parse(response.getContentText()), response)
+  if (message !== 'success') throw new Error(error)
+  console.log(member)
 
   return {
     message: 'Membro removido com sucesso.'
   }
-}
-
-export function moveMember() {
-  // remove member from current group
-  // add member to destination group
-  // update member and groups status on database
 }

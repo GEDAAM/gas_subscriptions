@@ -1,5 +1,5 @@
 import { Config } from '../config'
-import { addMember, getAllMembers, getCurrentMembers, moveMember, removeMember } from './memberCRUD'
+import { addMember, getMembersNameReg, removeMember } from './memberCRUD'
 import { showModal, alert } from './modals'
 
 function include(filename) {
@@ -19,8 +19,6 @@ global.include = include
 global.showModal = showModal
 global.alert = alert
 
-global.getAllMembers = getAllMembers
-global.getCurrentMembers = getCurrentMembers
+global.getMembersNameReg = getMembersNameReg
 global.addMember = addMember
 global.removeMember = removeMember
-global.moveMember = moveMember

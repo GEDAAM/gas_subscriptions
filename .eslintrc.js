@@ -28,6 +28,14 @@ module.exports = {
     ],
     'no-nested-ternary': 'off',
     'arrow-parens': ['error', 'as-needed'],
-    'no-console': 'off'
+    'no-console': 'off',
+    'max-len': [
+      'error',
+      {
+        code: 100,
+        ignoreComments: true,
+        ignoreStrings: true
+      }
+    ]
   }
 }

@@ -1,18 +1,12 @@
-import handleRequest from './requests'
-import postWithFormSheet from './requests/post'
-import getWithGroupsSheet from './requests/get'
+import handleRequest, { getWithSpreadsheet, postWithSpreadsheet } from './requests'
 import mockRequest from './requests/mock'
 
-/**
- * @OnlyCurrentDoc
- */
-
 function doGet(e) {
-  return handleRequest(e, 'Public', getWithGroupsSheet)
+  return handleRequest(e, getWithSpreadsheet)
 }
 
 function doPost(e) {
-  return handleRequest(e, 'Form', postWithFormSheet)
+  return handleRequest(e, postWithSpreadsheet)
 }
 
 global.doPost = doPost

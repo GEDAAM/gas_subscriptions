@@ -1,8 +1,13 @@
-import { parseMatrixAsObject } from '../../../lib/parseSsData'
+import { getSheetAsMatrix, parseMatrixAsObject } from '../../../lib/parseSsData'
+import { getMembersNameReg } from './memberCRUD'
 
-export default function getWithGroupsSheet(_event, sheet) {
-  const data = sheet.getDataRange().getValues()
-  const [groups] = parseMatrixAsObject(data)
+function getGroups(ss) {
+  const [groupsMatrix] = getSheetAsMatrix('Turmas', ss)
+  const [groups] = parseMatrixAsObject(groupsMatrix)
+  return groups
+}
 
-  return { groups }
+export const GetOperations = {
+  groups: getGroups,
+  nameregs: getMembersNameReg
 }

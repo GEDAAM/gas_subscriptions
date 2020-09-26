@@ -17,8 +17,10 @@ export default function updateUserPresences() {
   groupsObjList.forEach(({ id: groupId, sheet_id }) => {
     const ss = SpreadsheetApp.openById(sheet_id)
     const [[header, ...data]] = getSheetAsMatrix(Config.RESERVED_SHEET_NAME, ss)
-    const presenceHeader = header.filter(h => !usersHeader.includes(h))
-    const presenceIndices = presenceHeader.map(h => header.indexOf(h))
+    const presenceHeader = header
+      .filter(h => !usersHeader.includes(h))
+      .map((e, i) => e || `E${i + 1}`)
+    const presenceStartIndex = header.length - presenceHeader.length
     const idIndex = header.indexOf('register')
     data.forEach(row => {
       const uid = row[idIndex]
@@ -27,7 +29,7 @@ export default function updateUserPresences() {
         ...prevPresence,
         [groupId]: presenceHeader.reduce((obj, h, i) => {
           const key = h instanceof Date ? h.toDateString() : h
-          obj[key] = row[presenceIndices[i]]
+          obj[key] = row[presenceStartIndex + i]
           return obj
         }, {})
       }
