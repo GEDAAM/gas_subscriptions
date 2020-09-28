@@ -12,9 +12,9 @@ function groupsDistributionOrchestrator(mode = Modes.CLEAN) {
   const ss = SpreadsheetApp.getActiveSpreadsheet()
 
   // timestamp	name	email	register	cpf	selectedGroup	multiplier	status	finalGroup
-  const [usersMatrix, usersSheet] = getSheetAsMatrix('Subs', ss)
+  const [usersMatrix, usersSheet] = getSheetAsMatrix('Students', ss)
   // id	vacancies	openVacancies	length	selected
-  const [groupsMatrix, groupsSheet] = getSheetAsMatrix('Groups', ss)
+  const [groupsMatrix, groupsSheet] = getSheetAsMatrix('Turmas', ss)
 
   const [usersObjList, usersHeader] = parseMatrixAsObject(usersMatrix)
   // grants only unique students, in which only the most recent entry will remain
@@ -27,10 +27,10 @@ function groupsDistributionOrchestrator(mode = Modes.CLEAN) {
 
   const preparedUsersList = prepareUsersList(usersMap)
   const sortedUsers = getSortedUsersList(preparedUsersList)
-  const selectionState = distributeGroups(sortedUsers, groups)
+  const selectionState = distributeGroups(sortedUsers, groups, mode)
   const updatedUsersList = updateUsers(preparedUsersList, selectionState, ['status', 'finalGroup'])
 
-  saveDataToSheet(groupsSheet, groups, groupsHeader)
+  saveDataToSheet(groupsSheet, groups, groupsHeader, false)
   saveDataToSheet(usersSheet, updatedUsersList, usersHeader)
 
   SpreadsheetApp.flush()

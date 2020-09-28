@@ -17,7 +17,6 @@ export function getMembersNameReg(masterSpreadsheet) {
 
 export function addMember(masterSpreadsheet, { uid, currentSheetId }) {
   const ss = SpreadsheetApp.openById(currentSheetId)
-  const [sheetId] = SpreadsheetApp.getActiveSpreadsheet().getName().split(' ')
 
   const [usersMatrix, usersSheet] = getSheetAsMatrix('Students', masterSpreadsheet)
   const [usersObjList, usersHeader] = parseMatrixAsObject(usersMatrix)
@@ -31,7 +30,7 @@ export function addMember(masterSpreadsheet, { uid, currentSheetId }) {
         )
       }
       user.status = 'MOVED'
-      user.finalGroup = sheetId
+      user.finalGroup = currentSheetId
       member = user
     }
     return user
@@ -43,11 +42,16 @@ export function addMember(masterSpreadsheet, { uid, currentSheetId }) {
 
   const [groupsMatrix, groupsSheet] = getSheetAsMatrix('Turmas', masterSpreadsheet)
   const [groupsObjList, groupsHeader] = parseMatrixAsObject(groupsMatrix)
-  const newGroupsObjList = groupsObjList.map(group =>
-    group.id == sheetId ? { ...group, selected: [...group.selected, member.register] } : group
-  )
+  const newGroupsObjList = groupsObjList.map(group => {
+    if (group.id == currentSheetId) {
+      group.selected = [...group.selected, member.register]
+      group.openVacancies = +group.openVacancies - 1
+      group.length = +group.length + 1
+    }
+    return group
+  })
 
-  const newCurrentHeader = currentHeader.filter(h => isNaN(new Date(h)))
+  const newCurrentHeader = currentHeader.filter(h => h && isNaN(new Date(h)))
 
   saveDataToSheet(currentSheet, newCurrentMembers, newCurrentHeader, false)
   saveDataToSheet(usersSheet, newUsersObjList, usersHeader, false)
@@ -67,6 +71,7 @@ export function removeMember(masterSpreadsheet, { uid, currentSheetId }) {
   const newUsersObjList = usersObjList.map(user => {
     if (user.register == uid) {
       user.status = 'REMOVED'
+      user.finalGroup = null
       member = user
     }
     return user
@@ -79,15 +84,18 @@ export function removeMember(masterSpreadsheet, { uid, currentSheetId }) {
   if (newCurrentMembers.length === currentMembers.length) {
     throw new Error('Você não pode remover um membro de outro grupo')
   }
-  newCurrentMembers.push(currentHeader.map(() => null)) // will clear the last row
+  newCurrentMembers.push(Array(currentHeader.length).fill(null)) // will clear the last row
 
   const [groupsMatrix, groupsSheet] = getSheetAsMatrix('Turmas', masterSpreadsheet)
   const [groupsObjList, groupsHeader] = parseMatrixAsObject(groupsMatrix)
-  const newGroupsObjList = groupsObjList.map(group =>
-    group.id == member.finalGroup
-      ? { ...group, selected: group.selected.filter(uid => uid != member.register) }
-      : group
-  )
+  const newGroupsObjList = groupsObjList.map(group => {
+    if (group.id == member.finalGroup) {
+      group.selected = group.selected.filter(uid => uid != member.register)
+      group.openVacancies = +group.openVacancies + 1
+      group.length = +group.length - 1
+    }
+    return group
+  })
 
   const [uiMatrix, mainSheet] = getSheetAsMatrix(Config.MAIN_SHEET_NAME, ss)
   mainSheet.deleteRow(uiMatrix.findIndex(([name]) => name === member.name) + 1)

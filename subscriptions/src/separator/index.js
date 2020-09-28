@@ -1,30 +1,33 @@
 import { saveDataToSheet } from '../../../lib/saveToSheet'
+import { getSheetAsMatrix, parseMatrixAsObject } from '../../../lib/parseSsData'
 export default function separateFormData() {
   const ss = SpreadsheetApp.getActiveSpreadsheet()
-  const formSheet = ss.getSheetByName('Form')
-  const researchSheet = ss.getSheetByName('Motiro')
-  const subsSheet = ss.getSheetByName('Students')
+  const [formMatrix] = getSheetAsMatrix('Form', ss)
+  const [researchMatrix, researchSheet] = getSheetAsMatrix('Motiro', ss)
+  const [subsMatrix, subsSheet] = getSheetAsMatrix('Students', ss)
 
-  const [headers, ...formData] = formSheet.getDataRange().getValues()
-  const formDataObjList = formData.map(row =>
-    headers.reduce((rowsObj, header, i) => {
-      rowsObj[header] = row[i].toString().replace(/"/g, '')
-      return rowsObj
-    }, {})
+  const [formObjList] = parseMatrixAsObject(formMatrix)
+  const [researchObj, researchHeaders] = parseMatrixAsObject(researchMatrix)
+  const [subsObj, subsHeaders] = parseMatrixAsObject(subsMatrix)
+
+  formObjList.forEach(row => {
+    if (!row.college || row.college === 'null') row.college = row.otherCollege
+  })
+
+  const researchIds = researchObj.map(({ id }) => id)
+  const researchData = researchObj.concat(
+    formObjList.filter(
+      ({ id, ingressoFaculdade }) => !researchIds.includes(id) && ingressoFaculdade
+    )
   )
 
-  const [researchHeaders] = researchSheet.getDataRange().getValues()
-  const [subsHeaders] = subsSheet.getDataRange().getValues()
+  const subsIds = subsObj.map(({ id }) => id)
+  const subsData = subsObj.concat(
+    formObjList.filter(({ id, name }) => !subsIds.includes(id) && name)
+  )
 
-  const researchData = formDataObjList
-    .map(row => researchHeaders.map(header => row[header]))
-    .filter(r => r[3])
-  const subsData = formDataObjList
-    .map(row => subsHeaders.map(header => row[header]))
-    .filter(r => r[3])
-
-  saveDataToSheet(researchSheet, researchData, researchHeaders)
-  saveDataToSheet(subsSheet, subsData, subsHeaders)
+  saveDataToSheet(researchSheet, researchData, researchHeaders, false)
+  saveDataToSheet(subsSheet, subsData, subsHeaders, false)
 
   SpreadsheetApp.flush()
 }

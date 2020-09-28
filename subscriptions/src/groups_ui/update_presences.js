@@ -15,6 +15,8 @@ export default function updateUserPresences() {
 
   const userPresences = new Map()
   groupsObjList.forEach(({ id: groupId, sheet_id }) => {
+    if (groupId === 'remainder') return
+
     const ss = SpreadsheetApp.openById(sheet_id)
     const [[header, ...data]] = getSheetAsMatrix(Config.RESERVED_SHEET_NAME, ss)
     const presenceHeader = header

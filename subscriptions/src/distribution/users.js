@@ -1,3 +1,11 @@
+export const Statuses = {
+  OPT1: 'OPT1', // was selected to option 1
+  OPT2: 'OPT2', // was selected to option 2
+  REMAINDER: 'REMAINDER', // is on the queue
+  MOVED: 'MOVED', // was manually added to a group
+  REMOVED: 'REMOVED', // was manually removed from a group
+  EMPTY: 'EMPTY' // did not select a group
+}
 export function prepareUsersList(usersMap) {
   const usersList = [...usersMap]
   const preparedUsersList = usersList
@@ -17,10 +25,12 @@ export function prepareUsersList(usersMap) {
 export function getSortedUsersList(sortableUsersList) {
   sortableUsersList.sort((userA, userB) => userA.order - userB.order)
 
-  // [uid, [opt1Id, opt2Id?]]
-  const sortedUsers = sortableUsersList.map(({ register, selectedGroup }) => [
+  // [uid, [opt1Id, opt2Id?], status, finalGroup]
+  const sortedUsers = sortableUsersList.map(({ register, selectedGroup, status, finalGroup }) => [
     register,
-    selectedGroup.map(g => String(g))
+    selectedGroup.map(g => String(g)),
+    status,
+    finalGroup
   ])
 
   return sortedUsers

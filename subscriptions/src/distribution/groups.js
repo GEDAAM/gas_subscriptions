@@ -3,7 +3,7 @@ import { mapMatrixWithHeader, parseRowWithHeaderProps } from '../../../lib/parse
 export class Group {
   constructor({ vacancies, selected, openVacancies, ...rest }) {
     this.vacancies = +vacancies
-    this._openVacancies = +openVacancies || +vacancies
+    this._openVacancies = +openVacancies ?? +vacancies
     this._length = selected.length
     delete rest['length']
 
@@ -30,7 +30,7 @@ export class Group {
   }
 
   get hasVacancy() {
-    return this.openVacancies > 0
+    return this._openVacancies > 0
   }
 
   get length() {

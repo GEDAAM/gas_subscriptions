@@ -15,7 +15,7 @@ export function getMembersNameReg() {
   return nameregs
 }
 
-export function addMember(namereg) {
+function performOperationToMember(namereg, operation) {
   const currentSheetId = SpreadsheetApp.getActiveSpreadsheet().getId()
   const uid = getRegisterFromNamereg(namereg)
 
@@ -23,41 +23,27 @@ export function addMember(namereg) {
     method: 'POST',
     contentType: 'application/json',
     payload: JSON.stringify({
-      operation: 'add_member',
+      operation,
       currentSheetId,
       uid
     })
-  })
+  }).getContentText()
 
-  const { message, member, error } = JSON.parse(response.getContentText())
-  console.log(JSON.parse(response.getContentText()), response)
+  const { message, member, error } = JSON.parse(response)
   if (message !== 'success') throw new Error(error)
-  console.log(member)
 
+  return member
+}
+
+export function addMember(namereg) {
+  performOperationToMember(namereg, 'add_member')
   return {
     message: 'Membro incluído com sucesso.'
   }
 }
 
 export function removeMember(namereg) {
-  const currentSheetId = SpreadsheetApp.getActiveSpreadsheet().getId()
-  const uid = getRegisterFromNamereg(namereg)
-
-  const response = UrlFetchApp.fetch(DB_URL, {
-    method: 'POST',
-    contentType: 'application/json',
-    payload: JSON.stringify({
-      operation: 'remove_member',
-      currentSheetId,
-      uid
-    })
-  })
-
-  const { message, member, error } = JSON.parse(response.getContentText())
-  console.log(JSON.parse(response.getContentText()), response)
-  if (message !== 'success') throw new Error(error)
-  console.log(member)
-
+  performOperationToMember(namereg, 'remove_member')
   return {
     message: 'Membro removido com sucesso.'
   }
