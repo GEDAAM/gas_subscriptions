@@ -1,4 +1,4 @@
-import { mapSpreadsheets, parseMatrixAsObject } from '../../../lib/parseSsData'
+import { getSheetAsMatrix, mapSpreadsheets } from '../../../lib/parseSsData'
 import { Config } from '../groups_ui/config'
 
 export function getGroupSheetsFromFolder() {
@@ -16,20 +16,14 @@ export function getGroupSheetsFromFolder() {
   return indexedFiles
 }
 
-export default function getIndexedGroupsData() {
+export default function mapGroupsSpreadsheets() {
   const indexedFiles = getGroupSheetsFromFolder()
   const idList = Object.keys(indexedFiles)
 
-  let groups = {}
-  const internalSheetsList = mapSpreadsheets(idList, (ss, fileId) => {
-    const groupId = indexedFiles[fileId]
-    const controlSheet = ss.getSheetByName('Internal')
-    const dataMatrix = controlSheet.getDataRange().getValues()
-    const data = parseMatrixAsObject(dataMatrix)
-    groups[groupId] = data
-
-    return controlSheet
+  mapSpreadsheets(idList, ss => {
+    const [, sheet] = getSheetAsMatrix('Membros', ss)
+    const range = sheet.getRange('A1:A')
+    const [, , h, ...data] = range.getValues()
+    range.setValues([h, [''], ...data, ['']])
   })
-
-  return [groups, internalSheetsList]
 }

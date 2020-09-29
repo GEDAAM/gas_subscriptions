@@ -37,11 +37,10 @@ export default function generateGroupsSpreadsheets() {
     const members = getSortedMembers(group)
 
     const ss = SpreadsheetApp.openById(id)
-    const [[header], sheet] = getSheetAsMatrix(Config.RESERVED_SHEET_NAME, ss)
+    const [[header], sheet] = getSheetAsMatrix(Config.MAIN_SHEET_NAME, ss)
     const currentHeader = header.filter(h => usersHeader.includes(h))
     saveDataToSheet(sheet, members, currentHeader, false)
-    // sheet.getRange(1, currentHeader.length + 1).setFormula(`{${Config.MAIN_SHEET_NAME}!G2:Z}`)
-    sheet.hideSheet()
+    // sheet.hideSheet()
 
     return id
   })

@@ -1,5 +1,5 @@
-import { getSheetAsMatrix, parseMatrixAsObject } from '../../../lib/parseSsData'
-import { saveDataToSheet } from '../../../lib/saveToSheet'
+import { getBottomRow, getSheetAsMatrix, parseMatrixAsObject } from '../../../lib/parseSsData'
+import { removeRowByIndex, saveDataToSheet } from '../../../lib/saveToSheet'
 import { Config } from '../config'
 
 export function getMembersNameReg(masterSpreadsheet) {
@@ -17,6 +17,7 @@ export function getMembersNameReg(masterSpreadsheet) {
 
 export function addMember(masterSpreadsheet, { uid, currentSheetId }) {
   const ss = SpreadsheetApp.openById(currentSheetId)
+  const [sheetId] = ss.getName().split(' ')
 
   const [usersMatrix, usersSheet] = getSheetAsMatrix('Students', masterSpreadsheet)
   const [usersObjList, usersHeader] = parseMatrixAsObject(usersMatrix)
@@ -30,32 +31,40 @@ export function addMember(masterSpreadsheet, { uid, currentSheetId }) {
         )
       }
       user.status = 'MOVED'
-      user.finalGroup = currentSheetId
+      user.finalGroup = sheetId
       member = user
     }
     return user
   })
 
-  const [membersMatrix, currentSheet] = getSheetAsMatrix(Config.RESERVED_SHEET_NAME, ss)
+  const [membersMatrix, currentSheet] = getSheetAsMatrix(Config.MAIN_SHEET_NAME, ss)
+  const uiHeader = membersMatrix.splice(1, 1)
   const [currentMembers, currentHeader] = parseMatrixAsObject(membersMatrix)
-  const newCurrentMembers = [...currentMembers, member]
+  const newCurrentMembers = [uiHeader, ...currentMembers, member]
 
   const [groupsMatrix, groupsSheet] = getSheetAsMatrix('Turmas', masterSpreadsheet)
   const [groupsObjList, groupsHeader] = parseMatrixAsObject(groupsMatrix)
   const newGroupsObjList = groupsObjList.map(group => {
-    if (group.id == currentSheetId) {
-      group.selected = [...group.selected, member.register]
-      group.openVacancies = +group.openVacancies - 1
+    if (group.id == sheetId) {
+      group.selected.push(member.register)
+      if (+group.openVacancies === 0) {
+        group.vacancies = +group.vacancies + 1
+      } else {
+        group.openVacancies = +group.openVacancies - 1
+      }
       group.length = +group.length + 1
     }
     return group
   })
 
-  const newCurrentHeader = currentHeader.filter(h => h && isNaN(new Date(h)))
-
+  // register	name	phoneNumber	semester	college	email	topicsOfInterest
+  const newCurrentHeader = currentHeader.filter((_, i) => i < 7)
   saveDataToSheet(currentSheet, newCurrentMembers, newCurrentHeader, false)
   saveDataToSheet(usersSheet, newUsersObjList, usersHeader, false)
   saveDataToSheet(groupsSheet, newGroupsObjList, groupsHeader, false)
+  currentSheet
+    .getRange(3, 1, currentSheet.getLastRow() - 3, currentSheet.getLastColumn() - 1)
+    .sort({ column: currentHeader.indexOf('name') + 1 || 2, ascending: true })
 
   return {
     member
@@ -71,15 +80,17 @@ export function removeMember(masterSpreadsheet, { uid, currentSheetId }) {
   const newUsersObjList = usersObjList.map(user => {
     if (user.register == uid) {
       user.status = 'REMOVED'
+      member = { ...user }
       user.finalGroup = null
-      member = user
     }
     return user
   })
 
-  const [membersMatrix, currentSheet] = getSheetAsMatrix(Config.RESERVED_SHEET_NAME, ss)
+  const [membersMatrix, currentSheet] = getSheetAsMatrix(Config.MAIN_SHEET_NAME, ss)
+  membersMatrix.splice(1, 1)
   const [currentMembers, currentHeader] = parseMatrixAsObject(membersMatrix)
   const newCurrentMembers = currentMembers.filter(({ register }) => register != uid)
+  // throw new Error(JSON.stringify(currentMembers))
 
   if (newCurrentMembers.length === currentMembers.length) {
     throw new Error('Você não pode remover um membro de outro grupo')
@@ -97,11 +108,10 @@ export function removeMember(masterSpreadsheet, { uid, currentSheetId }) {
     return group
   })
 
-  const [uiMatrix, mainSheet] = getSheetAsMatrix(Config.MAIN_SHEET_NAME, ss)
-  mainSheet.deleteRow(uiMatrix.findIndex(([name]) => name === member.name) + 1)
-  const newCurrentHeader = currentHeader.filter(h => isNaN(new Date(h)))
-
-  saveDataToSheet(currentSheet, newCurrentMembers, newCurrentHeader, false)
+  removeRowByIndex(
+    currentSheet,
+    currentMembers.findIndex(({ register }) => register === member.register) + 3
+  )
   saveDataToSheet(usersSheet, newUsersObjList, usersHeader, false)
   saveDataToSheet(groupsSheet, newGroupsObjList, groupsHeader, false)
 

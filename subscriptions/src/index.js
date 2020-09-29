@@ -1,6 +1,8 @@
 import { distributeGroupsFromZero, distributeRemainingVacancies } from './distribution'
 import generateGroupsSpreadsheets from './groups_ui'
+import updateGroupsSpreadsheets from './groups_ui/sheets_update'
 import updateUserPresences from './groups_ui/update_presences'
+import mapGroupsSpreadsheets from './patch_groups/updater'
 import separateFormData from './separator'
 import setup from './setup'
 import triggersSetup from './triggers'
@@ -13,6 +15,7 @@ function onOpen() {
     .addItem('Distribuir grupos do zero', 'distributeGroupsFromZero')
     .addItem('Distribuir vagas remanescentes', 'distributeRemainingVacancies')
     .addItem('Gerar planilhas dos grupos', 'generateSheets')
+    .addItem('Atualizar planilhas dos grupos', 'updateGroupsSheets')
     .addItem('Atualizar presenças', 'updateUserPresences')
     .addToUi()
 }
@@ -22,6 +25,8 @@ global.distributeRemainingVacancies = distributeRemainingVacancies
 global.generateSheets = generateGroupsSpreadsheets
 global.separateData = separateFormData
 global.updateUserPresences = updateUserPresences
+global.updateGroupsSheets = updateGroupsSpreadsheets
+global.patchGroups = mapGroupsSpreadsheets
 
 global.setup = setup
 global.triggers = triggersSetup
