@@ -1,5 +1,9 @@
 import { saveDataToSheet } from '../../../lib/saveToSheet'
-import { getSheetAsMatrix, parseMatrixAsObject } from '../../../lib/parseSsData'
+import {
+  getIndexedMapWithId,
+  getSheetAsMatrix,
+  parseMatrixAsObject
+} from '../../../lib/parseSsData'
 export default function separateFormData() {
   const ss = SpreadsheetApp.getActiveSpreadsheet()
   const [formMatrix] = getSheetAsMatrix('Form', ss)
@@ -21,10 +25,15 @@ export default function separateFormData() {
     )
   )
 
-  const subsIds = subsObj.map(({ id }) => id)
-  const subsData = subsObj.concat(
-    formObjList.filter(({ id, name }) => !subsIds.includes(id) && name)
+  const formsMap = getIndexedMapWithId(
+    formObjList.filter(obj => obj.name),
+    'id'
   )
+  let subsData = []
+  formsMap.forEach((formObj, id) => {
+    const oldSub = subsObj.find(({ id: i }) => i === id)
+    subsData.push({ ...oldSub, ...formObj })
+  })
 
   saveDataToSheet(researchSheet, researchData, researchHeaders, false)
   saveDataToSheet(subsSheet, subsData, subsHeaders, false)

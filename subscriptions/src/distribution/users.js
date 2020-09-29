@@ -9,11 +9,11 @@ export const Statuses = {
 export function prepareUsersList(usersMap) {
   const usersList = [...usersMap]
   const preparedUsersList = usersList
+    .sort(([, { timestamp: a }], [, { timestamp: b }]) => new Date(a) - new Date(b))
     .map(([, user], index) => {
       if (!user.register) return
 
-      const order = index * (1 / user.multiplier)
-      user.order = order
+      user.order = index * (1 / user.multiplier)
       user.selectedGroup = user.selectedGroup.map(g => String(g))
 
       return user
@@ -25,10 +25,10 @@ export function prepareUsersList(usersMap) {
 export function getSortedUsersList(sortableUsersList) {
   sortableUsersList.sort((userA, userB) => userA.order - userB.order)
 
-  // [uid, [opt1Id, opt2Id?], status, finalGroup]
+  // [uid, [opt1Id, opt2Id?], status?, finalGroup?]
   const sortedUsers = sortableUsersList.map(({ register, selectedGroup, status, finalGroup }) => [
     register,
-    selectedGroup.map(g => String(g)),
+    selectedGroup,
     status,
     finalGroup
   ])
