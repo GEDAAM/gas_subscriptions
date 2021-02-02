@@ -19,10 +19,13 @@ function getHeader(sheet) {
 }
 
 function registerFormSubmission(ss, data) {
-  const sheet = ss.getSheetByName('Form')
+  const sheet = ss.getSheetByName('Form') || ss.insertSheet('Form')
   const header = getHeader(sheet)
-  const newHeader = [...header, ...Object.keys(data).filter(k => !header.includes(k))]
-  setHeader(newHeader, sheet)
+  const newFields = Object.keys(data).filter(k => !header.includes(k))
+  const newHeader = [...header, ...newFields]
+  if (newFields.length > 0) {
+    setHeader(newHeader, sheet)
+  }
   const newRow = mapRow(newHeader, data)
   sheet.appendRow(newRow)
 
