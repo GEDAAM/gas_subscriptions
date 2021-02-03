@@ -6,11 +6,23 @@ import { parseName } from '../../../lib/parseName'
 import sendEmail from '../mail'
 import { Defaults } from './config'
 
+// Generating certificates typically takes more time than the allowed quota
+const startTime = new Date().getTime()
+let timeoutFlag = false
+let quotaFlag = false
+
 function setQuotaTrigger() {
-  // As quotas reset every 24 hours, this will set the script to trigger after that time
+  // As mail quotas reset every 24 hours, this will set the script to trigger after that time
   ScriptApp.newTrigger('sendCertificates')
     .timeBased()
-    .after(24 * 60 * 60 * 1000)
+    .after(24.1 * 60 * 60 * 1000) // waits 24 hours (com uma gordurinha)
+    .create()
+}
+
+function setTimeoutTrigger() {
+  ScriptApp.newTrigger('sendCertificates')
+    .timeBased()
+    .after(30 * 1000) // waits 30 seconds
     .create()
 }
 
@@ -76,6 +88,7 @@ function mapAndSendCertificates(certificateObjList, mailFields, saveCellByRow) {
       console.error(err)
       if (err.isQuotaExceeded) {
         setQuotaTrigger()
+        quotaFlag = true
         break
       }
 
@@ -83,6 +96,14 @@ function mapAndSendCertificates(certificateObjList, mailFields, saveCellByRow) {
     }
 
     saveCellByRow(certificateDidSendList[i], i)
+
+    // In case this takes longer than the allowed quota to run, breaks and sets trigger
+    const currTime = new Date().getTime()
+    if (currTime - startTime >= Defaults.MAX_RUNNING_TIME) {
+      setTimeoutTrigger()
+      timeoutFlag = true
+      break
+    }
   }
 
   return [certificateDidSendList, erroredUsers]
@@ -126,13 +147,21 @@ export default function sendCertificates() {
   SpreadsheetApp.flush()
 
   const ui = SpreadsheetApp.getUi()
-  if (!certificateDidSendList.includes(false)) {
-    ui.alert('Todos os certificados foram gerados com sucesso')
-  } else if (erroredUsers.length > 0) {
+  if (erroredUsers.length > 0) {
     ui.alert(
       `Os certificados de ${erroredUsers.join('\n')} não puderam ser enviados por erro interno.`
     )
+  } else if (timeoutFlag) {
+    ui.alert(
+      'O certificados demoraram demais para serem gerados. Interrompendo e reiniciando em 30 segundos...'
+    )
+  } else if (quotaFlag) {
+    ui.alert(
+      'A quantidade de certificados excedeu a cota permitida. Este programa foi agendado para continuar em 24 horas.'
+    )
+  } else if (!certificateDidSendList.includes(false)) {
+    ui.alert('Todos os certificados foram gerados com sucesso')
   } else {
-    ui.alert('Alguns certificados ainda não puderam ser gerados, tente novamente mais tarde.')
+    ui.alert('Alguns certificados não puderam ser gerados, tente novamente mais tarde.')
   }
 }
