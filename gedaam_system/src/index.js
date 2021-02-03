@@ -1,3 +1,4 @@
+import sendCertificates from './certificates'
 import { distributeGroupsFromZero, distributeRemainingVacancies } from './distribution'
 import generateGroupsSpreadsheets from './groups_ui'
 import updateGroupsSpreadsheets from './groups_ui/sheets_update'
@@ -19,6 +20,7 @@ function onOpen() {
     .addItem('Atualizar planilhas dos grupos', 'updateGroupsSheets')
     .addItem('Atualizar presenças', 'updateUserPresences')
     .addItem('Gerar lista de certificados', 'processCertificatesList')
+    .addItem('Enviar certificados', 'sendCertificates')
     .addToUi()
 }
 
@@ -30,6 +32,7 @@ global.updateUserPresences = updateUserPresences
 global.updateGroupsSheets = updateGroupsSpreadsheets
 global.patchGroups = mapGroupsSpreadsheets
 global.processCertificatesList = processCertificatesList
+global.sendCertificates = sendCertificates
 
 global.setup = setup
 global.triggers = triggersSetup
