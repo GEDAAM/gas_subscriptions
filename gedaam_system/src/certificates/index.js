@@ -6,6 +6,14 @@ import { parseName } from '../../../lib/parseName'
 import sendEmail from '../mail'
 import { Defaults } from './config'
 
+function setQuotaTrigger() {
+  // As quotas reset every 24 hours, this will set the script to trigger after that time
+  ScriptApp.newTrigger('sendCertificates')
+    .timeBased()
+    .after(24 * 60 * 60 * 1000)
+    .create()
+}
+
 function generateCertificateFromSlide(certificateObj) {
   const targetFile = DriveApp.getFileById(Defaults.CERTIFICATE_SLIDE_TEMPLATE_ID).makeCopy(
     `Certificado de ${certificateObj.name}.pdf`
@@ -67,7 +75,7 @@ function mapAndSendCertificates(certificateObjList, mailFields, saveCellByRow) {
     } catch (err) {
       console.error(err)
       if (err.isQuotaExceeded) {
-        // do some trigger management
+        setQuotaTrigger()
         break
       }
 
