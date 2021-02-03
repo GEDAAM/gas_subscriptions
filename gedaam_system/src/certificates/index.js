@@ -2,6 +2,7 @@ import { forEach, reduce } from 'lodash'
 import { fieldReplacer } from '../../../lib/general'
 import { getSheetAsMatrix, parseMatrixAsObject } from '../../../lib/parseSsData'
 import { saveColumnToSheet } from '../../../lib/saveToSheet'
+import { parseName } from '../../../lib/parseName'
 import sendEmail from '../mail'
 import { Defaults } from './config'
 
@@ -47,6 +48,7 @@ function mapAndSendCertificates(certificateObjList, mailFields) {
       continue
     }
 
+    certificateObj.name = parseName(certificateObj.name)
     certificateObj.fname = certificateObj.name.split(' ')[0]
 
     const certificate = generateCertificateFromSlide(certificateObj)
