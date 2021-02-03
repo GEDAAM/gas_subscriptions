@@ -6,6 +6,12 @@ export const Statuses = {
   REMOVED: 'REMOVED', // was manually removed from a group
   EMPTY: 'EMPTY' // did not select a group
 }
+
+export const ValidStatuses = {
+  OPT1: 'OPT1', // was selected to option 1
+  OPT2: 'OPT2', // was selected to option 2
+  MOVED: 'MOVED' // was manually added to a group
+}
 export function prepareUsersList(usersMap) {
   const usersList = [...usersMap]
   const preparedUsersList = usersList

@@ -3,6 +3,7 @@ import generateGroupsSpreadsheets from './groups_ui'
 import updateGroupsSpreadsheets from './groups_ui/sheets_update'
 import updateUserPresences from './groups_ui/update_presences'
 import mapGroupsSpreadsheets from './patch_groups/updater'
+import processCertificatesList from './process_certificates_list'
 import separateFormData from './separator'
 import setup from './setup'
 import triggersSetup from './triggers'
@@ -17,6 +18,7 @@ function onOpen() {
     .addItem('Gerar planilhas dos grupos', 'generateSheets')
     .addItem('Atualizar planilhas dos grupos', 'updateGroupsSheets')
     .addItem('Atualizar presenças', 'updateUserPresences')
+    .addItem('Gerar lista de certificados', 'processCertificatesList')
     .addToUi()
 }
 
@@ -27,9 +29,10 @@ global.separateData = separateFormData
 global.updateUserPresences = updateUserPresences
 global.updateGroupsSheets = updateGroupsSpreadsheets
 global.patchGroups = mapGroupsSpreadsheets
+global.processCertificatesList = processCertificatesList
 
 global.setup = setup
 global.triggers = triggersSetup
 
-global.sendGroupsDataToServer = sendGroupsDataToServer
+global.sendGroupsDataToServer = sendGroupsDataToServer // deprecated
 global.onOpen = onOpen
