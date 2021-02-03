@@ -2,15 +2,16 @@ import { Defaults } from './config'
 import { fieldReplacer } from '../../../lib/general'
 
 export class MailError extends Error {
-  constructor(isQuotaExceeded, message) {
+  constructor(message, isQuotaExceeded, userName) {
     super(message)
     this.isQuotaExceeded = isQuotaExceeded
+    this.userName = userName
   }
 }
 
 export default function sendEmail(mergingFields, attachment, replyToSuffix = '') {
   if (MailApp.getRemainingDailyQuota() < 1) {
-    throw new MailError(true, 'A cota de emails diária se esgotou')
+    throw new MailError('A cota de emails diária se esgotou', true)
   }
 
   const htmlTemplate = HtmlService.createTemplateFromFile(Defaults.EMAIL_HTML)
@@ -22,29 +23,23 @@ export default function sendEmail(mergingFields, attachment, replyToSuffix = '')
   let { email, name, subject, intro, body } = mergingFields
   if (Defaults.TEST) email = Defaults.TEST_EMAIL
 
-  try {
-    GmailApp.sendEmail(email, subject, `${intro}\n\n${body}`, {
-      attachments: [attachment],
-      from: 'coordenacaogedaam+ti@gmail.com',
-      name: 'GEDAAM: Dpto. de TI',
-      replyTo: `coordenacaogedaam${replyToSuffix ? `+${replyToSuffix}` : ''}@gmail.com`,
-      htmlBody
-    })
+  const mailOptions = {
+    attachments: [attachment],
+    from: 'coordenacaogedaam+ti@gmail.com',
+    name: 'GEDAAM: Dpto. de TI',
+    replyTo: `coordenacaogedaam${replyToSuffix ? `+${replyToSuffix}` : ''}@gmail.com`,
+    htmlBody
+  }
 
-    return true
+  try {
+    GmailApp.sendEmail(email, subject, `${intro}\n\n${body}`, mailOptions)
   } catch (_err) {
     try {
-      MailApp.sendEmail(email, subject, `${intro}\n\n${body}`, {
-        attachments: [attachment],
-        from: 'coordenacaogedaam+ti@gmail.com',
-        name: 'GEDAAM: Diretoria de TI',
-        replyTo: `coordenacaogedaam${replyToSuffix ? `+${replyToSuffix}` : ''}@gmail.com`,
-        htmlBody
-      })
-
-      return true
+      MailApp.sendEmail(email, subject, `${intro}\n\n${body}`, mailOptions)
     } catch (error) {
-      throw new Error(`O e-mail de ${name} não foi enviado. Erro ${error}\n`)
+      throw new MailError(error, false, name)
     }
   }
+
+  return true
 }
