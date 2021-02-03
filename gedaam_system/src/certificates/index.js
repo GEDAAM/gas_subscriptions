@@ -1,7 +1,7 @@
 import { forEach, reduce } from 'lodash'
 import { fieldReplacer } from '../../../lib/general'
 import { getSheetAsMatrix, parseMatrixAsObject } from '../../../lib/parseSsData'
-import { saveCellToSheet, saveColumnToSheet } from '../../../lib/saveToSheet'
+import { saveCellToSheet } from '../../../lib/saveToSheet'
 import { parseName } from '../../../lib/parseName'
 import sendEmail from '../mail'
 import { Defaults } from './config'
