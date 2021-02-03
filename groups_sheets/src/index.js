@@ -3,7 +3,7 @@ import myOnOpen from './ui/on_open'
 import myOnEdit from './ui/on_edit'
 import addGroupSheetTriggers from './triggers'
 import showSubscriptionSidebar from './sidebar'
-import setup from './_startup'
+import setup from './startup'
 
 /**
  * @OnlyCurrentDoc

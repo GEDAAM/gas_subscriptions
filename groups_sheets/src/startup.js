@@ -2,7 +2,8 @@ function updaterSetup() {
   const docProperties = PropertiesService.getDocumentProperties()
   docProperties.setProperties(
     {
-      DB_URL: '' // here goes the private URL
+      // here goes the private URL
+      DB_URL: 'https://script.google.com/macros/s/AKfycbzZ2QUTFksLhdx1p7s4DkoxbeL8o6qNHFh7G6EY/exec'
     },
     false
   )
