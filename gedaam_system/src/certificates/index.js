@@ -1,7 +1,7 @@
 import { forEach, reduce } from 'lodash'
 import { fieldReplacer } from '../../../lib/general'
 import { getSheetAsMatrix, parseMatrixAsObject } from '../../../lib/parseSsData'
-import { saveColumnToSheet } from '../../../lib/saveToSheet'
+import { saveCellToSheet, saveColumnToSheet } from '../../../lib/saveToSheet'
 import { parseName } from '../../../lib/parseName'
 import sendEmail from '../mail'
 import { Defaults } from './config'
@@ -37,7 +37,7 @@ function generateCertificateFromSlide(certificateObj) {
   return blob
 }
 
-function mapAndSendCertificates(certificateObjList, mailFields) {
+function mapAndSendCertificates(certificateObjList, mailFields, saveCellByRow) {
   let certificateDidSendList = Array(certificateObjList.length).fill(false)
   const erroredUsers = []
 
@@ -73,6 +73,8 @@ function mapAndSendCertificates(certificateObjList, mailFields) {
 
       if (err.userName) erroredUsers.push(err.userName)
     }
+
+    saveCellByRow(certificateDidSendList[i], i)
   }
 
   return [certificateDidSendList, erroredUsers]
@@ -97,16 +99,22 @@ export default function sendCertificates() {
     year: new Date().getFullYear().toString()
   }
 
+  const saveCellByRow = (data, row) => {
+    saveCellToSheet(
+      certificatesSheet,
+      row + 2, // starts at 1, first is header
+      certificatesHeader.indexOf('isCertificateSent') + 1,
+      data
+    )
+  }
+
+  // this can take longer than standard runtime limits to run
   const [certificateDidSendList, erroredUsers] = mapAndSendCertificates(
     certificatesObjList,
-    mailFields
+    mailFields,
+    saveCellByRow
   )
 
-  saveColumnToSheet(
-    certificateDidSendList,
-    certificatesHeader.indexOf('isCertificateSent') + 1,
-    certificatesSheet
-  )
   SpreadsheetApp.flush()
 
   const ui = SpreadsheetApp.getUi()
