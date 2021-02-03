@@ -1,17 +1,17 @@
-import { Config } from '../groups_ui/config'
+import { Defaults } from './config'
 import { fieldReplacer } from '../../../lib/general'
 
 export default function sendEmail(mergingFields, attachment, replyToSuffix = '') {
   if (MailApp.getRemainingDailyQuota() < 1) throw new Error('A cota de emails diária se esgotou\n')
 
-  const htmlTemplate = HtmlService.createTemplateFromFile(Config.EMAIL_HTML)
+  const htmlTemplate = HtmlService.createTemplateFromFile(Defaults.EMAIL_HTML)
     .evaluate()
     .getContent()
     .toString()
 
   const htmlBody = fieldReplacer(mergingFields, htmlTemplate)
   let { email, name, subject, intro, body } = mergingFields
-  if (Config.TEST) email = 'rafawendel2010@gmail.com'
+  if (Defaults.TEST) email = Defaults.TEST_EMAIL
 
   try {
     GmailApp.sendEmail(email, subject, `${intro}\n\n${body}`, {
