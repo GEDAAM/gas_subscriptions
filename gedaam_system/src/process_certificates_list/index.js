@@ -36,7 +36,7 @@ function getDuration(presencesByGroup) {
 }
 
 function prepareUsersToCertificate(usersObjList) {
-  return usersObjList.map(({ presences: presencesByGroup, status, ...user }) => {
+  return usersObjList.map(({ presences: presencesByGroup, status, course, ...user }) => {
     if (!includes(ValidStatuses, status)) return null // filters students that were not selected
 
     let duration
@@ -48,13 +48,12 @@ function prepareUsersToCertificate(usersObjList) {
 
     const range = getRange()
 
-    return { ...user, duration, range, role: 'membro' }
+    return { ...user, course: course.toLowerCase(), duration, range, role: 'membro' }
   })
 }
 
 function prepareCoordsToCertificate(coordsObjList, groupsObjList) {
-  return coordsObjList.map(coordinator => {
-    const { register, sex } = coordinator
+  return coordsObjList.map(({ register, sex, course, ...coordinator }) => {
     const range = getRange()
     const role = `coordenador${sex.toLowerCase() === 'feminino' ? 'a' : ''}`
     const duration =
@@ -65,7 +64,7 @@ function prepareCoordsToCertificate(coordsObjList, groupsObjList) {
       }, 0)
 
     if (duration === 0) return null
-    return { ...coordinator, duration, range, role }
+    return { ...coordinator, course: course.toLowerCase(), duration, range, role }
   })
 }
 
