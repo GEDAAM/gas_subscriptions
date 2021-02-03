@@ -29,7 +29,7 @@ export function getGroupSheetFile(group, recycle = true) {
     file = previousFiles.next()
   } else {
     trashPreviousFiles(previousFiles)
-    file = DriveApp.getFileById(Config.TEMPLATE_ID).makeCopy(fileName, destination)
+    file = DriveApp.getFileById(Config.TEMPLATE_SHEET_ID).makeCopy(fileName, destination)
   }
 
   const editors = !Config.TEST ? group.coordinators.map(c => c.email) : ['rafawendel2010@gmail.com']
