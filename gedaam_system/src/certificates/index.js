@@ -22,7 +22,7 @@ function setQuotaTrigger() {
 function setTimeoutTrigger() {
   ScriptApp.newTrigger('sendCertificates')
     .timeBased()
-    .after(30 * 1000) // waits 30 seconds
+    .after(60 * 1000) // waits a minute
     .create()
 }
 
@@ -144,24 +144,30 @@ export default function sendCertificates() {
     saveCellByRow
   )
 
-  SpreadsheetApp.flush()
+  // Only update if the session is being run by an actual user
+  try {
+    const ui = SpreadsheetApp.getUi()
+    SpreadsheetApp.flush()
 
-  const ui = SpreadsheetApp.getUi()
-  if (erroredUsers.length > 0) {
-    ui.alert(
-      `Os certificados de ${erroredUsers.join('\n')} não puderam ser enviados por erro interno.`
-    )
-  } else if (timeoutFlag) {
-    ui.alert(
-      'O certificados demoraram demais para serem gerados. Interrompendo e reiniciando em 30 segundos...'
-    )
-  } else if (quotaFlag) {
-    ui.alert(
-      'A quantidade de certificados excedeu a cota permitida. Este programa foi agendado para continuar em 24 horas.'
-    )
-  } else if (!certificateDidSendList.includes(false)) {
-    ui.alert('Todos os certificados foram gerados com sucesso')
-  } else {
-    ui.alert('Alguns certificados não puderam ser gerados, tente novamente mais tarde.')
+    if (erroredUsers.length > 0) {
+      ui.alert(
+        `Os certificados de ${erroredUsers.join('\n')} não puderam ser enviados por erro interno.`
+      )
+    } else if (timeoutFlag) {
+      ui.alert(
+        'O certificados demoraram demais para serem gerados. Interrompendo e reiniciando em 1 minuto...'
+      )
+    } else if (quotaFlag) {
+      ui.alert(
+        'A quantidade de certificados excedeu a cota permitida. Este programa foi agendado para continuar em 24 horas.'
+      )
+    } else if (!certificateDidSendList.includes(false)) {
+      ui.alert('Todos os certificados foram gerados com sucesso')
+    } else {
+      ui.alert('Alguns certificados não puderam ser gerados, tente novamente mais tarde.')
+    }
+  } catch (_) {
+    if (erroredUsers.length > 0) console.error(erroredUsers)
+    console.log(JSON.stringify(ScriptApp.getProjectTriggers()))
   }
 }
