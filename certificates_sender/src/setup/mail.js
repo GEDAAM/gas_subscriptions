@@ -16,6 +16,6 @@ class EmailSetup extends Setup {
 
 export default function setupEmail() {
   EmailSetup.start({
-    SHOULD_SEND_EMAIL: false
+    SHOULD_SEND_EMAIL: true
   })
 }
