@@ -11,11 +11,11 @@ class MainSetup extends Setup {
 
   optionalPrompts = {
     NAME_COLUMN: 'Insira o título do cabeçalho para a coluna dos nomes',
-    EMAIL_COLUMN: 'Insira o título do cabeçalho para a coluna dos e-mails',
     VERIFY_COLUMN: 'Insira o título do cabeçalho para a coluna de verificação'
   }
 }
 
 export default function setupApp() {
-  MainSetup.start()
+  const setup = new MainSetup()
+  setup.start()
 }

@@ -15,7 +15,8 @@ class EmailSetup extends Setup {
 }
 
 export default function setupEmail() {
-  EmailSetup.start({
+  const setup = new EmailSetup()
+  setup.start({
     SHOULD_SEND_EMAIL: true
   })
 }

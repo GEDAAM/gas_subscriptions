@@ -47,7 +47,7 @@ function generateCertificateFromSlide(certificateObj) {
   const targetFile = DriveApp.getFileById(targedId).makeCopy(
     `Certificado de ${certificateObj.name}.pdf`
   )
-  const targetDocument = SlidesApp.openById(targedId)
+  const targetDocument = SlidesApp.openById(targetFile.getId())
   const targetSlide = targetDocument.getSlides()[0]
 
   forEach(certificateObj, (value, key) => {
@@ -143,11 +143,17 @@ export default function sendCertificates() {
   )
   const [certificatesObjList, certificatesHeader] = parseMatrixAsObject(certificatesMatrix)
 
+  // Adds the verification col to the header
+  if (!certificatesHeader.includes(Settings.VERIFY_COLUMN)) {
+    saveCellToSheet(certificatesSheet, 1, certificatesHeader.length + 1, Settings.VERIFY_COLUMN)
+    certificatesHeader.push(Settings.VERIFY_COLUMN)
+  }
+
   const saveCellByRow = (data, row) => {
     saveCellToSheet(
       certificatesSheet,
       row + 2, // starts at 1, first is header
-      certificatesHeader.indexOf(Settings.VERIFY_COLUMN) + 1 || certificatesHeader.length,
+      certificatesHeader.indexOf(Settings.VERIFY_COLUMN) + 1,
       data
     )
   }

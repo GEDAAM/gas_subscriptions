@@ -1,7 +1,4 @@
-import { Config } from '../config'
-
 const Defaults = {
-  TEST: Config.TEST,
   CERTIFICATE_SHEET_NAME: 'Certificados',
   NAME_COLUMN: 'name',
   EMAIL_COLUMN: 'email',
@@ -10,7 +7,7 @@ const Defaults = {
   BACKUP_CERTIFICATES: true
 }
 
-function getUserInput(promptMapping, title) {
+function getUserInput(promptMapping, title, fallbackMapping = {}) {
   const ui = SpreadsheetApp.getUi()
   const responseMapping = {}
 
@@ -22,7 +19,9 @@ function getUserInput(promptMapping, title) {
     if (btn === ui.Button.CANCEL || btn === ui.Button.CANCEL) break
 
     const input = response.getResponseText()
-    responseMapping[key] = input
+    if (!input && !(key in fallbackMapping)) throw new Error('Insira um valor válido')
+
+    responseMapping[key] = input || fallbackMapping[key]
   }
 
   return responseMapping
@@ -38,11 +37,15 @@ export default class Setup {
   requiredPrompts = {}
   optionalPrompts = {}
 
-  static start(overhead = {}) {
+  start(overhead = {}) {
     const settings = {
       ...Defaults,
       ...getUserInput(this.requiredPrompts, this.title),
-      ...getUserInput(this.optionalPrompts, `${this.title} (deixe em branco para ignorar)`),
+      ...getUserInput(
+        this.optionalPrompts,
+        `${this.title} (deixe em branco para ignorar)`,
+        Defaults
+      ),
       ...overhead
     }
 
